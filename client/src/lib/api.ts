@@ -10,11 +10,17 @@ export interface Track {
   likeCount: number;
 }
 
-export async function searchTracks(query: string): Promise<Track[]> {
-  const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
+export interface SearchResult {
+  tracks: Track[];
+  nextPageToken?: string;
+}
+
+export async function searchTracks(query: string, pageToken?: string): Promise<SearchResult> {
+  let url = `${API_BASE}/search?q=${encodeURIComponent(query)}`;
+  if (pageToken) url += `&pageToken=${encodeURIComponent(pageToken)}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error("Search failed");
-  const data = await res.json();
-  return data.tracks;
+  return res.json();
 }
 
 export async function fetchSuggestions(query: string): Promise<string[]> {

@@ -6,6 +6,7 @@ interface PlayerState {
   queue: Track[];
   isPlaying: boolean;
   searchResults: Track[];
+  nextPageToken: string | null;
 
   play: (track: Track) => void;
   pause: () => void;
@@ -13,7 +14,8 @@ interface PlayerState {
   addToQueue: (track: Track) => void;
   removeFromQueue: (index: number) => void;
   playNext: () => void;
-  setSearchResults: (tracks: Track[]) => void;
+  setSearchResults: (tracks: Track[], nextPageToken?: string) => void;
+  appendSearchResults: (tracks: Track[], nextPageToken?: string) => void;
   clearQueue: () => void;
   shuffle: () => void;
 }
@@ -23,6 +25,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   queue: [],
   isPlaying: false,
   searchResults: [],
+  nextPageToken: null,
 
   play: (track) => set({ currentTrack: track, isPlaying: true }),
   pause: () => set({ isPlaying: false }),
@@ -42,7 +45,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const [next, ...rest] = queue;
     set({ currentTrack: next, queue: rest, isPlaying: true });
   },
-  setSearchResults: (tracks) => set({ searchResults: tracks }),
+  setSearchResults: (tracks, nextPageToken) => set({ searchResults: tracks, nextPageToken: nextPageToken ?? null }),
+  appendSearchResults: (tracks, nextPageToken) =>
+    set((state) => ({ searchResults: [...state.searchResults, ...tracks], nextPageToken: nextPageToken ?? null })),
   clearQueue: () => set({ queue: [] }),
   shuffle: () =>
     set((state) => {

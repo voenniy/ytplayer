@@ -17,7 +17,8 @@ router.get("/", async (req, res) => {
       return res.json({ tracks: [track] });
     }
 
-    const results = await searchYouTube(query);
+    const pageToken = req.query.pageToken as string | undefined;
+    const results = await searchYouTube(query, pageToken);
     res.json(results);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

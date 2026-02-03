@@ -1,12 +1,15 @@
 import { useState, useMemo } from "react";
 import type { Track } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Eye, ThumbsUp, ListPlus, Clock, ArrowUpDown } from "lucide-react";
+import { Eye, ThumbsUp, ListPlus, Clock, ArrowUpDown, Loader2 } from "lucide-react";
 
 interface TrackListProps {
   tracks: Track[];
   onPlay: (track: Track) => void;
   onAddToQueue: (track: Track) => void;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
+  isLoading?: boolean;
 }
 
 type SortField = "default" | "duration" | "viewCount" | "likeCount";
@@ -33,7 +36,7 @@ const sortOptions: { field: SortField; label: string; icon: typeof Clock }[] = [
   { field: "likeCount", label: "Лайки", icon: ThumbsUp },
 ];
 
-export function TrackList({ tracks, onPlay, onAddToQueue }: TrackListProps) {
+export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, isLoading }: TrackListProps) {
   const [sortField, setSortField] = useState<SortField>("default");
   const [sortAsc, setSortAsc] = useState(false);
 
@@ -122,6 +125,21 @@ export function TrackList({ tracks, onPlay, onAddToQueue }: TrackListProps) {
           </div>
         ))}
       </div>
+      {hasMore && onLoadMore && (
+        <div className="flex justify-center pt-2 pb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onLoadMore}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : null}
+            Ещё результаты
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

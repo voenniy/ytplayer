@@ -17,9 +17,13 @@ import { useMediaSession } from "@/hooks/useMediaSession";
 function App() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("search");
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
+  const [lastQuery, setLastQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const setSearchResults = usePlayerStore((s) => s.setSearchResults);
+  const appendSearchResults = usePlayerStore((s) => s.appendSearchResults);
   const searchResults = usePlayerStore((s) => s.searchResults);
+  const nextPageToken = usePlayerStore((s) => s.nextPageToken);
   const play = usePlayerStore((s) => s.play);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
   const currentTrack = usePlayerStore((s) => s.currentTrack);
@@ -73,11 +77,28 @@ function App() {
   });
 
   const handleSearch = async (query: string) => {
+    setLastQuery(query);
+    setIsSearching(true);
     try {
-      const tracks = await searchTracks(query);
-      setSearchResults(tracks);
+      const result = await searchTracks(query);
+      setSearchResults(result.tracks, result.nextPageToken);
     } catch (err) {
       console.error("Search failed:", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (!nextPageToken || !lastQuery || isSearching) return;
+    setIsSearching(true);
+    try {
+      const result = await searchTracks(lastQuery, nextPageToken);
+      appendSearchResults(result.tracks, result.nextPageToken);
+    } catch (err) {
+      console.error("Load more failed:", err);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -91,7 +112,7 @@ function App() {
               <SearchBar onSearch={handleSearch} />
             </div>
             <div className="flex-1 overflow-auto p-4">
-              <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} />
+              <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
             </div>
           </>
         ) : (
@@ -149,7 +170,7 @@ function App() {
                 <SearchBar onSearch={handleSearch} />
               </div>
               <div className="flex-1 overflow-auto p-4">
-                <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} />
+                <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
               </div>
             </>
           ) : (
