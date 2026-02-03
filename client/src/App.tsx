@@ -1,8 +1,22 @@
+import { Layout } from "@/components/Layout";
+import { SearchBar } from "@/components/SearchBar";
+import { searchTracks } from "@/lib/api";
+import { usePlayerStore } from "@/stores/player";
+
 function App() {
+  const setSearchResults = usePlayerStore((s) => s.setSearchResults);
+
+  const handleSearch = async (query: string) => {
+    const tracks = await searchTracks(query);
+    setSearchResults(tracks);
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <h1 className="text-2xl p-4">MusicPlay</h1>
-    </div>
+    <Layout>
+      <div className="p-4 flex justify-center">
+        <SearchBar onSearch={handleSearch} />
+      </div>
+    </Layout>
   );
 }
 
