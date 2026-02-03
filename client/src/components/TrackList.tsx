@@ -1,7 +1,18 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { Track } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Eye, ThumbsUp, ListPlus, Clock, ArrowUpDown, Loader2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePlaylistsStore } from "@/stores/playlists";
+import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, MoreVertical } from "lucide-react";
 
 interface TrackListProps {
   tracks: Track[];
@@ -35,6 +46,47 @@ const sortOptions: { field: SortField; label: string; icon: typeof Clock }[] = [
   { field: "viewCount", label: "Просмотры", icon: Eye },
   { field: "likeCount", label: "Лайки", icon: ThumbsUp },
 ];
+
+function TrackPlaylistSubmenu({ track }: { track: Track }) {
+  const playlists = usePlaylistsStore((s) => s.playlists);
+  const createPlaylist = usePlaylistsStore((s) => s.createPlaylist);
+  const addTrack = usePlaylistsStore((s) => s.addTrack);
+  const loadPlaylists = usePlaylistsStore((s) => s.loadPlaylists);
+
+  useEffect(() => { loadPlaylists(); }, [loadPlaylists]);
+
+  const handleAdd = (playlistId: number) => {
+    addTrack(playlistId, track);
+  };
+
+  const handleCreateAndAdd = async () => {
+    const name = prompt("Название плейлиста:");
+    if (!name?.trim()) return;
+    await createPlaylist(name.trim());
+    const { playlists: updated } = usePlaylistsStore.getState();
+    if (updated.length > 0) {
+      addTrack(updated[0].id, track);
+    }
+  };
+
+  return (
+    <DropdownMenuSub>
+      <DropdownMenuSubTrigger>В плейлист</DropdownMenuSubTrigger>
+      <DropdownMenuSubContent>
+        {playlists.map((pl) => (
+          <DropdownMenuItem key={pl.id} onClick={() => handleAdd(pl.id)}>
+            {pl.name}
+          </DropdownMenuItem>
+        ))}
+        {playlists.length > 0 && <DropdownMenuSeparator />}
+        <DropdownMenuItem onClick={handleCreateAndAdd}>
+          <Plus className="h-4 w-4 mr-2 text-green-500" />
+          <span className="text-green-500">Создать новый</span>
+        </DropdownMenuItem>
+      </DropdownMenuSubContent>
+    </DropdownMenuSub>
+  );
+}
 
 export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, isLoading }: TrackListProps) {
   const [sortField, setSortField] = useState<SortField>("default");
@@ -114,14 +166,24 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               </div>
             </div>
             <span className="text-xs text-muted-foreground">{formatDuration(track.duration)}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="opacity-0 group-hover:opacity-100"
-              onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}
-            >
-              <ListPlus className="h-4 w-4" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}>
+                  <ListPlus className="h-4 w-4 mr-2" /> В очередь
+                </DropdownMenuItem>
+                <TrackPlaylistSubmenu track={track} />
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ))}
       </div>
