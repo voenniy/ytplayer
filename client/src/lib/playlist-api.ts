@@ -44,10 +44,20 @@ export async function addTrackToPlaylist(playlistId: number, track: Track): Prom
       artist: track.artist,
       thumbnail: track.thumbnail,
       duration: track.duration,
+      view_count: track.viewCount,
+      like_count: track.likeCount,
     }),
   });
 }
 
 export async function removeTrackFromPlaylist(playlistId: number, trackId: number): Promise<void> {
   await fetch(`${API_BASE}/playlists/${playlistId}/tracks/${trackId}`, { method: "DELETE" });
+}
+
+export async function reorderPlaylistTracks(playlistId: number, trackIds: number[]): Promise<void> {
+  await fetch(`${API_BASE}/playlists/${playlistId}/tracks/reorder`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ trackIds }),
+  });
 }

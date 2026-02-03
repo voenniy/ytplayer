@@ -31,7 +31,7 @@ router.delete("/:id", (req, res) => {
 router.get("/:id/tracks", (req, res) => {
   const db = getDb();
   const rows = db
-    .prepare("SELECT id as _rowId, video_id, title, artist, thumbnail, duration, position FROM playlist_tracks WHERE playlist_id = ? ORDER BY position")
+    .prepare("SELECT id as _rowId, video_id, title, artist, thumbnail, duration, view_count, like_count, position FROM playlist_tracks WHERE playlist_id = ? ORDER BY position")
     .all(req.params.id) as any[];
   const tracks = rows.map((row) => ({
     id: row.video_id,
@@ -39,6 +39,8 @@ router.get("/:id/tracks", (req, res) => {
     artist: row.artist,
     thumbnail: row.thumbnail,
     duration: row.duration,
+    viewCount: row.view_count,
+    likeCount: row.like_count,
     _rowId: row._rowId,
   }));
   res.json(tracks);
@@ -46,7 +48,7 @@ router.get("/:id/tracks", (req, res) => {
 
 // POST /api/playlists/:id/tracks
 router.post("/:id/tracks", (req, res) => {
-  const { video_id, title, artist, thumbnail, duration } = req.body;
+  const { video_id, title, artist, thumbnail, duration, view_count, like_count } = req.body;
   if (!video_id || !title) {
     return res.status(400).json({ error: "video_id and title are required" });
   }
@@ -60,11 +62,29 @@ router.post("/:id/tracks", (req, res) => {
 
   const result = db
     .prepare(
-      "INSERT INTO playlist_tracks (playlist_id, video_id, title, artist, thumbnail, duration, position) VALUES (?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO playlist_tracks (playlist_id, video_id, title, artist, thumbnail, duration, view_count, like_count, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     )
-    .run(req.params.id, video_id, title, artist || "", thumbnail || "", duration || 0, position);
+    .run(req.params.id, video_id, title, artist || "", thumbnail || "", duration || 0, view_count || 0, like_count || 0, position);
 
   res.status(201).json({ id: result.lastInsertRowid });
+});
+
+// PUT /api/playlists/:id/tracks/reorder
+router.put("/:id/tracks/reorder", (req, res) => {
+  const { trackIds } = req.body;
+  if (!Array.isArray(trackIds)) {
+    return res.status(400).json({ error: "trackIds array is required" });
+  }
+
+  const db = getDb();
+  const update = db.prepare("UPDATE playlist_tracks SET position = ? WHERE id = ? AND playlist_id = ?");
+  const reorder = db.transaction((ids: number[]) => {
+    ids.forEach((id, index) => {
+      update.run(index, id, req.params.id);
+    });
+  });
+  reorder(trackIds);
+  res.status(200).json({ ok: true });
 });
 
 // DELETE /api/playlists/:playlistId/tracks/:trackId

@@ -14,6 +14,7 @@ interface PlaylistsState {
   selectPlaylist: (id: number | null) => Promise<void>;
   addTrack: (playlistId: number, track: Track) => Promise<void>;
   removeTrack: (playlistId: number, trackId: number) => Promise<void>;
+  reorderTracks: (playlistId: number, trackIds: number[]) => Promise<void>;
 }
 
 export const usePlaylistsStore = create<PlaylistsState>((set, get) => ({
@@ -86,6 +87,18 @@ export const usePlaylistsStore = create<PlaylistsState>((set, get) => ({
       }
     } catch (err) {
       console.error("Failed to remove track:", err);
+    }
+  },
+
+  reorderTracks: async (playlistId, trackIds) => {
+    try {
+      await api.reorderPlaylistTracks(playlistId, trackIds);
+      const { activePlaylistId } = get();
+      if (activePlaylistId === playlistId) {
+        await get().selectPlaylist(playlistId);
+      }
+    } catch (err) {
+      console.error("Failed to reorder tracks:", err);
     }
   },
 }));
