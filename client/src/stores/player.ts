@@ -16,6 +16,7 @@ interface PlayerState {
   playPrev: () => void;
   setSearchResults: (tracks: Track[]) => void;
   clearQueue: () => void;
+  shuffle: () => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -45,4 +46,13 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   playPrev: () => {},
   setSearchResults: (tracks) => set({ searchResults: tracks }),
   clearQueue: () => set({ queue: [] }),
+  shuffle: () =>
+    set((state) => {
+      const shuffled = [...state.queue];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return { queue: shuffled };
+    }),
 }));
