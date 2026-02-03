@@ -3,16 +3,25 @@ import { Layout } from "@/components/Layout";
 import { SearchBar } from "@/components/SearchBar";
 import { TrackList } from "@/components/TrackList";
 import { Player } from "@/components/Player";
-import { Sidebar } from "@/components/Sidebar";
+import { MainContent } from "@/components/MainContent";
+import { PlaylistList } from "@/components/PlaylistList";
+import { PlaylistDetail } from "@/components/PlaylistDetail";
 import { Queue } from "@/components/Queue";
 import { MobileNav, type MobileTab } from "@/components/MobileNav";
 import { MiniPlayer } from "@/components/MiniPlayer";
 import { FullscreenPlayer } from "@/components/FullscreenPlayer";
 import { searchTracks } from "@/lib/api";
 import { usePlayerStore } from "@/stores/player";
-import { usePlaylistsStore } from "@/stores/playlists";
 import { useAudio } from "@/hooks/useAudio";
 import { useMediaSession } from "@/hooks/useMediaSession";
+
+function MobilePlaylistsView() {
+  const [openId, setOpenId] = useState<number | null>(null);
+  if (openId !== null) {
+    return <PlaylistDetail playlistId={openId} onBack={() => setOpenId(null)} />;
+  }
+  return <PlaylistList onOpenPlaylist={setOpenId} />;
+}
 
 function App() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("search");
@@ -31,9 +40,6 @@ function App() {
   const storePause = usePlayerStore((s) => s.pause);
   const storeResume = usePlayerStore((s) => s.resume);
   const playNext = usePlayerStore((s) => s.playNext);
-
-  const activePlaylistId = usePlaylistsStore((s) => s.activePlaylistId);
-  const activePlaylistTracks = usePlaylistsStore((s) => s.activePlaylistTracks);
 
   // Single audio instance shared across desktop and mobile
   const audio = useAudio(playNext);
@@ -106,7 +112,7 @@ function App() {
   const renderMobileContent = () => {
     switch (mobileTab) {
       case "search":
-        return activePlaylistId === null ? (
+        return (
           <>
             <div className="p-4 flex justify-center">
               <SearchBar onSearch={handleSearch} />
@@ -115,15 +121,11 @@ function App() {
               <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
             </div>
           </>
-        ) : (
-          <div className="flex-1 overflow-auto p-4">
-            <TrackList tracks={activePlaylistTracks} onPlay={play} onAddToQueue={addToQueue} />
-          </div>
         );
       case "playlists":
         return (
           <div className="flex-1 overflow-auto">
-            <Sidebar />
+            <MobilePlaylistsView />
           </div>
         );
       case "queue":
@@ -162,22 +164,20 @@ function App() {
           </div>
         }
       >
-        {/* Desktop: same as before */}
+        {/* Desktop: MainContent with tabs */}
         <div className="hidden md:flex md:flex-col md:flex-1 min-h-0">
-          {activePlaylistId === null ? (
-            <>
-              <div className="p-4 flex justify-center">
-                <SearchBar onSearch={handleSearch} />
-              </div>
-              <div className="flex-1 overflow-auto p-4">
-                <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
-              </div>
-            </>
-          ) : (
-            <div className="flex-1 overflow-auto p-4">
-              <TrackList tracks={activePlaylistTracks} onPlay={play} onAddToQueue={addToQueue} />
-            </div>
-          )}
+          <MainContent
+            searchContent={
+              <>
+                <div className="p-4 flex justify-center">
+                  <SearchBar onSearch={handleSearch} />
+                </div>
+                <div className="flex-1 overflow-auto p-4">
+                  <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
+                </div>
+              </>
+            }
+          />
         </div>
 
         {/* Mobile: tab-based content */}

@@ -4,8 +4,8 @@ import { describe, it, expect, vi } from "vitest";
 import { TrackList } from "../components/TrackList";
 
 const mockTracks = [
-  { id: "abc", title: "Test Song", artist: "Artist", thumbnail: "http://img.jpg", duration: 240 },
-  { id: "def", title: "Another Song", artist: "Band", thumbnail: "http://img2.jpg", duration: 180 },
+  { id: "abc", title: "Test Song", artist: "Artist", thumbnail: "http://img.jpg", duration: 240, viewCount: 1000, likeCount: 50 },
+  { id: "def", title: "Another Song", artist: "Band", thumbnail: "http://img2.jpg", duration: 180, viewCount: 500, likeCount: 20 },
 ];
 
 describe("TrackList", () => {

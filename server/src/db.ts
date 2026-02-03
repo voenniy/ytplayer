@@ -22,10 +22,22 @@ export function initDb(path: string = "./musicplay.db"): void {
       artist TEXT NOT NULL,
       thumbnail TEXT NOT NULL,
       duration INTEGER DEFAULT 0,
+      view_count INTEGER DEFAULT 0,
+      like_count INTEGER DEFAULT 0,
       position INTEGER NOT NULL,
       added_at TEXT DEFAULT (datetime('now'))
     );
   `);
+
+  // Миграция: добавить колонки если таблица уже существует без них
+  const columns = db.prepare("PRAGMA table_info(playlist_tracks)").all() as any[];
+  const colNames = new Set(columns.map((c: any) => c.name));
+  if (!colNames.has("view_count")) {
+    db.exec("ALTER TABLE playlist_tracks ADD COLUMN view_count INTEGER DEFAULT 0");
+  }
+  if (!colNames.has("like_count")) {
+    db.exec("ALTER TABLE playlist_tracks ADD COLUMN like_count INTEGER DEFAULT 0");
+  }
 }
 
 export function getDb(): Database.Database {

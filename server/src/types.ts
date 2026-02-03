@@ -4,6 +4,8 @@ export interface Track {
   artist: string;
   thumbnail: string;
   duration: number; // seconds
+  viewCount: number;
+  likeCount: number;
 }
 
 export interface SearchResult {
