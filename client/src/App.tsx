@@ -142,7 +142,7 @@ function App() {
         }
       >
         {/* Desktop: same as before */}
-        <div className="hidden md:flex md:flex-col md:flex-1">
+        <div className="hidden md:flex md:flex-col md:flex-1 min-h-0">
           {activePlaylistId === null ? (
             <>
               <div className="p-4 flex justify-center">
@@ -160,7 +160,7 @@ function App() {
         </div>
 
         {/* Mobile: tab-based content */}
-        <div className="flex flex-col flex-1 md:hidden">
+        <div className="flex flex-col flex-1 min-h-0 md:hidden">
           {renderMobileContent()}
         </div>
       </Layout>

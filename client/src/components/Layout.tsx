@@ -14,11 +14,11 @@ export function Layout({ children, desktopPlayer, mobileBottom }: LayoutProps) {
       <header className="border-b px-4 py-3">
         <h1 className="text-xl font-bold">MusicPlay</h1>
       </header>
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         <div className="hidden md:flex">
           <Sidebar />
         </div>
-        <main className="flex-1 flex flex-col overflow-hidden">{children}</main>
+        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">{children}</main>
         <div className="hidden md:flex">
           <Queue />
         </div>
