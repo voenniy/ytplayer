@@ -52,7 +52,7 @@ export function Sidebar() {
           {playlists.map((pl) => (
             <div
               key={pl.id}
-              className={`flex items-center gap-1 px-2 py-1.5 rounded text-sm cursor-pointer ${
+              className={`flex items-center gap-1 px-2 py-1.5 rounded text-sm cursor-pointer group ${
                 activePlaylistId === pl.id ? "bg-muted" : "hover:bg-muted"
               }`}
               onClick={() => selectPlaylist(pl.id)}

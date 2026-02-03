@@ -15,8 +15,12 @@ function App() {
   const activePlaylistTracks = usePlaylistsStore((s) => s.activePlaylistTracks);
 
   const handleSearch = async (query: string) => {
-    const tracks = await searchTracks(query);
-    setSearchResults(tracks);
+    try {
+      const tracks = await searchTracks(query);
+      setSearchResults(tracks);
+    } catch (err) {
+      console.error("Search failed:", err);
+    }
   };
 
   return (

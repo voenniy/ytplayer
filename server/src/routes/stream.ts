@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { getAudioStream } from "../services/audio";
+import { getAudioStream, isValidVideoId } from "../services/audio";
 
 const router = Router();
 
 router.get("/:videoId", (req, res) => {
   const { videoId } = req.params;
 
-  if (!videoId || videoId.length !== 11) {
+  if (!videoId || !isValidVideoId(videoId)) {
     return res.status(400).json({ error: "Invalid video ID" });
   }
 

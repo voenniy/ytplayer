@@ -22,22 +22,34 @@ export const usePlaylistsStore = create<PlaylistsState>((set, get) => ({
   activePlaylistTracks: [],
 
   loadPlaylists: async () => {
-    const playlists = await api.fetchPlaylists();
-    set({ playlists });
+    try {
+      const playlists = await api.fetchPlaylists();
+      set({ playlists });
+    } catch (err) {
+      console.error("Failed to load playlists:", err);
+    }
   },
 
   createPlaylist: async (name) => {
-    await api.createPlaylist(name);
-    await get().loadPlaylists();
+    try {
+      await api.createPlaylist(name);
+      await get().loadPlaylists();
+    } catch (err) {
+      console.error("Failed to create playlist:", err);
+    }
   },
 
   deletePlaylist: async (id) => {
-    await api.deletePlaylist(id);
-    const { activePlaylistId } = get();
-    if (activePlaylistId === id) {
-      set({ activePlaylistId: null, activePlaylistTracks: [] });
+    try {
+      await api.deletePlaylist(id);
+      const { activePlaylistId } = get();
+      if (activePlaylistId === id) {
+        set({ activePlaylistId: null, activePlaylistTracks: [] });
+      }
+      await get().loadPlaylists();
+    } catch (err) {
+      console.error("Failed to delete playlist:", err);
     }
-    await get().loadPlaylists();
   },
 
   selectPlaylist: async (id) => {
@@ -45,23 +57,35 @@ export const usePlaylistsStore = create<PlaylistsState>((set, get) => ({
       set({ activePlaylistId: null, activePlaylistTracks: [] });
       return;
     }
-    const tracks = await api.fetchPlaylistTracks(id);
-    set({ activePlaylistId: id, activePlaylistTracks: tracks });
+    try {
+      const tracks = await api.fetchPlaylistTracks(id);
+      set({ activePlaylistId: id, activePlaylistTracks: tracks });
+    } catch (err) {
+      console.error("Failed to load playlist tracks:", err);
+    }
   },
 
   addTrack: async (playlistId, track) => {
-    await api.addTrackToPlaylist(playlistId, track);
-    const { activePlaylistId } = get();
-    if (activePlaylistId === playlistId) {
-      await get().selectPlaylist(playlistId);
+    try {
+      await api.addTrackToPlaylist(playlistId, track);
+      const { activePlaylistId } = get();
+      if (activePlaylistId === playlistId) {
+        await get().selectPlaylist(playlistId);
+      }
+    } catch (err) {
+      console.error("Failed to add track:", err);
     }
   },
 
   removeTrack: async (playlistId, trackId) => {
-    await api.removeTrackFromPlaylist(playlistId, trackId);
-    const { activePlaylistId } = get();
-    if (activePlaylistId === playlistId) {
-      await get().selectPlaylist(playlistId);
+    try {
+      await api.removeTrackFromPlaylist(playlistId, trackId);
+      const { activePlaylistId } = get();
+      if (activePlaylistId === playlistId) {
+        await get().selectPlaylist(playlistId);
+      }
+    } catch (err) {
+      console.error("Failed to remove track:", err);
     }
   },
 }));

@@ -13,7 +13,6 @@ interface PlayerState {
   addToQueue: (track: Track) => void;
   removeFromQueue: (index: number) => void;
   playNext: () => void;
-  playPrev: () => void;
   setSearchResults: (tracks: Track[]) => void;
   clearQueue: () => void;
   shuffle: () => void;
@@ -43,7 +42,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const [next, ...rest] = queue;
     set({ currentTrack: next, queue: rest, isPlaying: true });
   },
-  playPrev: () => {},
   setSearchResults: (tracks) => set({ searchResults: tracks }),
   clearQueue: () => set({ queue: [] }),
   shuffle: () =>

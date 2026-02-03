@@ -30,9 +30,17 @@ router.delete("/:id", (req, res) => {
 // GET /api/playlists/:id/tracks
 router.get("/:id/tracks", (req, res) => {
   const db = getDb();
-  const tracks = db
-    .prepare("SELECT * FROM playlist_tracks WHERE playlist_id = ? ORDER BY position")
-    .all(req.params.id);
+  const rows = db
+    .prepare("SELECT id as _rowId, video_id, title, artist, thumbnail, duration, position FROM playlist_tracks WHERE playlist_id = ? ORDER BY position")
+    .all(req.params.id) as any[];
+  const tracks = rows.map((row) => ({
+    id: row.video_id,
+    title: row.title,
+    artist: row.artist,
+    thumbnail: row.thumbnail,
+    duration: row.duration,
+    _rowId: row._rowId,
+  }));
   res.json(tracks);
 });
 

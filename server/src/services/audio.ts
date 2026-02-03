@@ -1,8 +1,16 @@
 import { spawn } from "child_process";
 import type { Readable } from "stream";
 
+const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
+export function isValidVideoId(videoId: string): boolean {
+  return VIDEO_ID_REGEX.test(videoId);
+}
+
 export function buildStreamUrl(videoId: string): string {
-  if (!videoId) throw new Error("Video ID is required");
+  if (!videoId || !isValidVideoId(videoId)) {
+    throw new Error("Invalid video ID");
+  }
   return `https://www.youtube.com/watch?v=${videoId}`;
 }
 
