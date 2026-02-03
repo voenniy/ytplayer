@@ -1,0 +1,116 @@
+import { useEffect, useCallback } from "react";
+import { usePlaylistsStore } from "@/stores/playlists";
+import { usePlayerStore } from "@/stores/player";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Play, GripVertical, X } from "lucide-react";
+import type { Track } from "@/lib/api";
+
+interface PlaylistDetailProps {
+  playlistId: number;
+  onBack: () => void;
+}
+
+type TrackWithRowId = Track & { _rowId?: number };
+
+export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
+  const playlists = usePlaylistsStore((s) => s.playlists);
+  const tracks = usePlaylistsStore((s) => s.activePlaylistTracks) as TrackWithRowId[];
+  const selectPlaylist = usePlaylistsStore((s) => s.selectPlaylist);
+  const removeTrack = usePlaylistsStore((s) => s.removeTrack);
+  const reorderTracks = usePlaylistsStore((s) => s.reorderTracks);
+  const play = usePlayerStore((s) => s.play);
+  const clearQueue = usePlayerStore((s) => s.clearQueue);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+
+  const playlist = playlists.find((p) => p.id === playlistId);
+
+  useEffect(() => {
+    selectPlaylist(playlistId);
+  }, [playlistId, selectPlaylist]);
+
+  const handlePlayAll = useCallback(() => {
+    if (tracks.length === 0) return;
+    clearQueue();
+    tracks.slice(1).forEach((t) => addToQueue(t));
+    play(tracks[0]);
+  }, [tracks, clearQueue, addToQueue, play]);
+
+  const handleRemove = async (track: TrackWithRowId) => {
+    if (track._rowId) {
+      await removeTrack(playlistId, track._rowId);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const sourceIndex = Number(e.dataTransfer.getData("text/plain"));
+    if (sourceIndex === targetIndex) return;
+
+    const newTracks = [...tracks];
+    const [moved] = newTracks.splice(sourceIndex, 1);
+    newTracks.splice(targetIndex, 0, moved);
+
+    const trackIds = newTracks.map((t) => t._rowId).filter((id): id is number => id != null);
+    if (trackIds.length > 0) {
+      await reorderTracks(playlistId, trackIds);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+
+  return (
+    <div className="flex flex-col gap-4 p-4">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 shrink-0">
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h2 className="text-lg font-bold truncate">{playlist?.name ?? "Плейлист"}</h2>
+        <span className="text-sm text-muted-foreground shrink-0">
+          {tracks.length} {tracks.length === 1 ? "трек" : "треков"}
+        </span>
+        <div className="flex-1" />
+        <Button onClick={handlePlayAll} size="sm" className="bg-green-500 hover:bg-green-600 text-black shrink-0">
+          <Play className="h-4 w-4 mr-1" /> Воспроизвести всё
+        </Button>
+      </div>
+      <div className="space-y-0.5">
+        {tracks.map((track, index) => (
+          <div
+            key={track._rowId ?? track.id}
+            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted group"
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, index)}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground/40 cursor-grab shrink-0" />
+            <img src={track.thumbnail} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => play(track)}>
+              <p className="text-sm font-medium truncate">{track.title}</p>
+              <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive shrink-0"
+              onClick={() => handleRemove(track)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+        {tracks.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-8">Плейлист пуст</p>
+        )}
+      </div>
+    </div>
+  );
+}
