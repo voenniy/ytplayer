@@ -22,7 +22,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-60 border-r flex flex-col">
+    <aside className="w-full md:w-60 md:border-r flex flex-col">
       <div className="p-3 border-b">
         <h2 className="text-sm font-semibold mb-2">Плейлисты</h2>
         <div className="flex gap-1">
