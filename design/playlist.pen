@@ -1,0 +1,441 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "playlistView",
+      "x": 0,
+      "y": 0,
+      "name": "Playlist View Page",
+      "clip": true,
+      "width": 944,
+      "height": 772,
+      "fill": "#0a0a0a",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "playlistHeader",
+          "x": 24,
+          "y": 24,
+          "name": "Playlist Header",
+          "width": 896,
+          "height": 48,
+          "fill": "transparent",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "playlistName",
+              "x": 0,
+              "y": 0,
+              "text": "Chill Vibes",
+              "fontSize": 20,
+              "fontWeight": 700,
+              "fill": "#fafafa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "trackCount",
+              "x": 0,
+              "y": 30,
+              "text": "12 tracks",
+              "fontSize": 13,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "playAllBtn",
+              "x": 780,
+              "y": 4,
+              "name": "Play All Button",
+              "width": 116,
+              "height": 36,
+              "fill": "#22c55e",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "playAllLabel",
+                  "x": 16,
+                  "y": 9,
+                  "text": "Play All",
+                  "fontSize": 14,
+                  "fontWeight": 600,
+                  "fill": "#0a0a0a",
+                  "fontFamily": "Inter"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "rectangle",
+          "id": "headerDivider",
+          "x": 24,
+          "y": 84,
+          "width": 896,
+          "height": 1,
+          "fill": "#262626"
+        },
+        {
+          "type": "frame",
+          "id": "plTrackRow1",
+          "x": 16,
+          "y": 96,
+          "name": "Playlist Track Row 1",
+          "width": 912,
+          "height": 56,
+          "fill": "transparent",
+          "cornerRadius": 8,
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "plT1Num",
+              "x": 8,
+              "y": 19,
+              "text": "1",
+              "fontSize": 13,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "rectangle",
+              "id": "plT1Cover",
+              "x": 32,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "fill": "#1a1a1a",
+              "cornerRadius": 4
+            },
+            {
+              "type": "text",
+              "id": "plT1Title",
+              "x": 92,
+              "y": 8,
+              "text": "Lofi Hip Hop Radio - Beats to Relax/Study to",
+              "fontSize": 14,
+              "fontWeight": 500,
+              "fill": "#fafafa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "plT1Artist",
+              "x": 92,
+              "y": 30,
+              "text": "Lofi Girl",
+              "fontSize": 13,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "plT1Duration",
+              "x": 808,
+              "y": 20,
+              "text": "3:42",
+              "fontSize": 12,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "plT1AddBtn",
+              "x": 848,
+              "y": 16,
+              "name": "Add to Queue",
+              "width": 24,
+              "height": 24,
+              "fill": "transparent",
+              "cornerRadius": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "plT1AddIcon",
+                  "x": 5,
+                  "y": 3,
+                  "text": "+",
+                  "fontSize": 16,
+                  "fill": "#71717a",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "plT1DelBtn",
+              "x": 880,
+              "y": 16,
+              "name": "Remove from Playlist",
+              "width": 24,
+              "height": 24,
+              "fill": "transparent",
+              "cornerRadius": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "plT1DelIcon",
+                  "x": 5,
+                  "y": 3,
+                  "text": "x",
+                  "fontSize": 14,
+                  "fill": "#71717a",
+                  "fontFamily": "Inter"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "plTrackRow2",
+          "x": 16,
+          "y": 156,
+          "name": "Playlist Track Row 2 (hover)",
+          "width": 912,
+          "height": 56,
+          "fill": "#222222",
+          "cornerRadius": 8,
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "plT2Num",
+              "x": 8,
+              "y": 19,
+              "text": "2",
+              "fontSize": 13,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "rectangle",
+              "id": "plT2Cover",
+              "x": 32,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "fill": "#1a1a1a",
+              "cornerRadius": 4
+            },
+            {
+              "type": "text",
+              "id": "plT2Title",
+              "x": 92,
+              "y": 8,
+              "text": "Jazzy Hip Hop - Nujabes Type Beat",
+              "fontSize": 14,
+              "fontWeight": 500,
+              "fill": "#fafafa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "plT2Artist",
+              "x": 92,
+              "y": 30,
+              "text": "Chillhop Music",
+              "fontSize": 13,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "plT2Duration",
+              "x": 808,
+              "y": 20,
+              "text": "5:17",
+              "fontSize": 12,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "plT2AddBtn",
+              "x": 848,
+              "y": 16,
+              "name": "Add to Queue (visible on hover)",
+              "width": 24,
+              "height": 24,
+              "fill": "transparent",
+              "cornerRadius": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "plT2AddIcon",
+                  "x": 5,
+                  "y": 3,
+                  "text": "+",
+                  "fontSize": 16,
+                  "fill": "#fafafa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "plT2DelBtn",
+              "x": 880,
+              "y": 16,
+              "name": "Remove from Playlist (visible on hover)",
+              "width": 24,
+              "height": 24,
+              "fill": "transparent",
+              "cornerRadius": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "plT2DelIcon",
+                  "x": 5,
+                  "y": 3,
+                  "text": "x",
+                  "fontSize": 14,
+                  "fill": "#ef4444",
+                  "fontFamily": "Inter"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "plTrackRow3",
+          "x": 16,
+          "y": 216,
+          "name": "Playlist Track Row 3",
+          "width": 912,
+          "height": 56,
+          "fill": "transparent",
+          "cornerRadius": 8,
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "plT3Num",
+              "x": 8,
+              "y": 19,
+              "text": "3",
+              "fontSize": 13,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "rectangle",
+              "id": "plT3Cover",
+              "x": 32,
+              "y": 4,
+              "width": 48,
+              "height": 48,
+              "fill": "#1a1a1a",
+              "cornerRadius": 4
+            },
+            {
+              "type": "text",
+              "id": "plT3Title",
+              "x": 92,
+              "y": 8,
+              "text": "Coffee Shop Jazz - Relaxing Background Music",
+              "fontSize": 14,
+              "fontWeight": 500,
+              "fill": "#fafafa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "plT3Artist",
+              "x": 92,
+              "y": 30,
+              "text": "Cafe Music BGM Channel",
+              "fontSize": 13,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "plT3Duration",
+              "x": 804,
+              "y": 20,
+              "text": "12:04",
+              "fontSize": 12,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "plT3AddBtn",
+              "x": 848,
+              "y": 16,
+              "name": "Add to Queue",
+              "width": 24,
+              "height": 24,
+              "fill": "transparent",
+              "cornerRadius": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "plT3AddIcon",
+                  "x": 5,
+                  "y": 3,
+                  "text": "+",
+                  "fontSize": 16,
+                  "fill": "#71717a",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "plT3DelBtn",
+              "x": 880,
+              "y": 16,
+              "name": "Remove from Playlist",
+              "width": 24,
+              "height": 24,
+              "fill": "transparent",
+              "cornerRadius": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "plT3DelIcon",
+                  "x": 5,
+                  "y": 3,
+                  "text": "x",
+                  "fontSize": 14,
+                  "fill": "#71717a",
+                  "fontFamily": "Inter"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "annotationsPlaylist",
+          "x": 16,
+          "y": 320,
+          "name": "Design Annotations",
+          "width": 600,
+          "height": 120,
+          "fill": "transparent",
+          "children": [
+            {
+              "type": "text",
+              "id": "annotPlaylist",
+              "x": 0,
+              "y": 0,
+              "text": "PLAYLIST VIEW SPECS:\n- Header: playlist name (20px bold) + track count (13px secondary)\n- 'Play All' button: green accent (#22c55e), 8px radius, dark text\n- Track rows: same component as search results\n- Additional: track number on left, delete button (x, red on hover) on right\n- Row 2 shows HOVER state: bg #222222, action buttons visible\n- Delete icon turns red (#ef4444) on hover\n- Reuses TrackList component with extra props: showNumber, onDelete",
+              "fontSize": 11,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

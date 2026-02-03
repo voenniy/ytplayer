@@ -1,0 +1,388 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "mainLayout",
+      "x": 0,
+      "y": 0,
+      "name": "MusicPlay — Main Layout",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "#0a0a0a",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "header",
+          "x": 0,
+          "y": 0,
+          "name": "Header",
+          "width": 1440,
+          "height": 56,
+          "fill": "#0a0a0a",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "logo",
+              "x": 16,
+              "y": 14,
+              "text": "MusicPlay",
+              "fontSize": 24,
+              "fontWeight": 700,
+              "fill": "#fafafa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "rectangle",
+              "id": "headerBorder",
+              "x": 0,
+              "y": 55,
+              "width": 1440,
+              "height": 1,
+              "fill": "#262626"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "sidebar",
+          "x": 0,
+          "y": 56,
+          "name": "Sidebar (240px)",
+          "width": 240,
+          "height": 772,
+          "fill": "#111111",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "playlistsHeading",
+              "x": 16,
+              "y": 16,
+              "text": "Playlists",
+              "fontSize": 13,
+              "fontWeight": 600,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "newPlaylistInput",
+              "x": 12,
+              "y": 44,
+              "name": "New Playlist Input",
+              "width": 216,
+              "height": 32,
+              "fill": "#1a1a1a",
+              "cornerRadius": 8,
+              "stroke": "#262626",
+              "strokeWidth": 1,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "inputPlaceholder",
+                  "x": 8,
+                  "y": 8,
+                  "text": "New playlist...",
+                  "fontSize": 13,
+                  "fill": "#71717a",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "searchNav",
+              "x": 8,
+              "y": 88,
+              "name": "Search Nav Item",
+              "width": 224,
+              "height": 36,
+              "fill": "#1a1a1a",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "searchLabel",
+                  "x": 36,
+                  "y": 9,
+                  "text": "Search",
+                  "fontSize": 14,
+                  "fill": "#fafafa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "playlist1",
+              "x": 8,
+              "y": 132,
+              "name": "Playlist Item 1",
+              "width": 224,
+              "height": 36,
+              "fill": "transparent",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pl1Name",
+                  "x": 12,
+                  "y": 9,
+                  "text": "Chill Vibes",
+                  "fontSize": 14,
+                  "fill": "#fafafa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "playlist2",
+              "x": 8,
+              "y": 172,
+              "name": "Playlist Item 2",
+              "width": 224,
+              "height": 36,
+              "fill": "transparent",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pl2Name",
+                  "x": 12,
+                  "y": 9,
+                  "text": "Workout Mix",
+                  "fontSize": 14,
+                  "fill": "#a1a1aa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "playlist3",
+              "x": 8,
+              "y": 212,
+              "name": "Playlist Item 3",
+              "width": 224,
+              "height": 36,
+              "fill": "transparent",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pl3Name",
+                  "x": 12,
+                  "y": 9,
+                  "text": "Focus Mode",
+                  "fontSize": 14,
+                  "fill": "#a1a1aa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "rectangle",
+              "id": "sidebarBorder",
+              "x": 239,
+              "y": 0,
+              "width": 1,
+              "height": 772,
+              "fill": "#262626"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "mainContent",
+          "x": 240,
+          "y": 56,
+          "name": "Main Content (flex)",
+          "width": 944,
+          "height": 772,
+          "fill": "#0a0a0a",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "mainAreaLabel",
+              "x": 372,
+              "y": 300,
+              "text": "Main Content Area",
+              "fontSize": 16,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "mainAreaDesc",
+              "x": 312,
+              "y": 330,
+              "text": "Search results or Playlist view renders here",
+              "fontSize": 13,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "queue",
+          "x": 1184,
+          "y": 56,
+          "name": "Queue (256px)",
+          "width": 256,
+          "height": 772,
+          "fill": "#111111",
+          "layout": "none",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "queueBorder",
+              "x": 0,
+              "y": 0,
+              "width": 1,
+              "height": 772,
+              "fill": "#262626"
+            },
+            {
+              "type": "text",
+              "id": "queueHeading",
+              "x": 16,
+              "y": 16,
+              "text": "Queue (3)",
+              "fontSize": 13,
+              "fontWeight": 600,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "queueItem1",
+              "x": 8,
+              "y": 52,
+              "name": "Queue Item 1",
+              "width": 240,
+              "height": 44,
+              "fill": "transparent",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "q1Cover",
+                  "x": 8,
+                  "y": 6,
+                  "width": 32,
+                  "height": 32,
+                  "fill": "#1a1a1a",
+                  "cornerRadius": 4
+                },
+                {
+                  "type": "text",
+                  "id": "q1Title",
+                  "x": 48,
+                  "y": 6,
+                  "text": "Lofi Beats Vol. 2",
+                  "fontSize": 12,
+                  "fontWeight": 500,
+                  "fill": "#fafafa",
+                  "fontFamily": "Inter"
+                },
+                {
+                  "type": "text",
+                  "id": "q1Artist",
+                  "x": 48,
+                  "y": 24,
+                  "text": "Chillhop Music",
+                  "fontSize": 11,
+                  "fill": "#a1a1aa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "queueItem2",
+              "x": 8,
+              "y": 100,
+              "name": "Queue Item 2",
+              "width": 240,
+              "height": 44,
+              "fill": "transparent",
+              "cornerRadius": 8,
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "q2Cover",
+                  "x": 8,
+                  "y": 6,
+                  "width": 32,
+                  "height": 32,
+                  "fill": "#1a1a1a",
+                  "cornerRadius": 4
+                },
+                {
+                  "type": "text",
+                  "id": "q2Title",
+                  "x": 48,
+                  "y": 6,
+                  "text": "Jazz Piano",
+                  "fontSize": 12,
+                  "fontWeight": 500,
+                  "fill": "#fafafa",
+                  "fontFamily": "Inter"
+                },
+                {
+                  "type": "text",
+                  "id": "q2Artist",
+                  "x": 48,
+                  "y": 24,
+                  "text": "Piano Jazz",
+                  "fontSize": 11,
+                  "fill": "#a1a1aa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "playerBar",
+          "x": 0,
+          "y": 828,
+          "name": "Player Bar",
+          "width": 1440,
+          "height": 72,
+          "fill": "#141414",
+          "layout": "none",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "playerTopBorder",
+              "x": 0,
+              "y": 0,
+              "width": 1440,
+              "height": 1,
+              "fill": "#262626"
+            },
+            {
+              "type": "text",
+              "id": "playerLabel",
+              "x": 620,
+              "y": 28,
+              "text": "Player Bar (72px)",
+              "fontSize": 14,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

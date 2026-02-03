@@ -1,0 +1,269 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "playerPanel",
+      "x": 0,
+      "y": 0,
+      "name": "Player Bar (72px height, full width)",
+      "clip": true,
+      "width": 1440,
+      "height": 72,
+      "fill": "#141414",
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "id": "topBorder",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 1,
+          "fill": "#262626"
+        },
+        {
+          "type": "frame",
+          "id": "leftSection",
+          "x": 16,
+          "y": 12,
+          "name": "Left: Cover + Track Info",
+          "width": 300,
+          "height": 48,
+          "fill": "transparent",
+          "layout": "none",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "coverArt",
+              "x": 0,
+              "y": 0,
+              "name": "Cover Art 48x48",
+              "width": 48,
+              "height": 48,
+              "fill": "#1a1a1a",
+              "cornerRadius": 4
+            },
+            {
+              "type": "text",
+              "id": "trackTitle",
+              "x": 60,
+              "y": 4,
+              "text": "Lofi Hip Hop Radio - Beats to Relax",
+              "fontSize": 14,
+              "fontWeight": 500,
+              "fill": "#fafafa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "text",
+              "id": "trackArtist",
+              "x": 60,
+              "y": 26,
+              "text": "Lofi Girl",
+              "fontSize": 13,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "centerSection",
+          "x": 420,
+          "y": 12,
+          "name": "Center: Progress Bar",
+          "width": 600,
+          "height": 48,
+          "fill": "transparent",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "currentTime",
+              "x": 0,
+              "y": 16,
+              "text": "1:24",
+              "fontSize": 11,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            },
+            {
+              "type": "frame",
+              "id": "progressTrack",
+              "x": 40,
+              "y": 20,
+              "name": "Progress Bar Track",
+              "width": 520,
+              "height": 4,
+              "fill": "#262626",
+              "cornerRadius": 2,
+              "children": [
+                {
+                  "type": "rectangle",
+                  "id": "progressFill",
+                  "x": 0,
+                  "y": 0,
+                  "name": "Progress Fill (accent green)",
+                  "width": 195,
+                  "height": 4,
+                  "fill": "#22c55e",
+                  "cornerRadius": 2
+                },
+                {
+                  "type": "ellipse",
+                  "id": "progressThumb",
+                  "x": 191,
+                  "y": -4,
+                  "name": "Thumb (visible on hover)",
+                  "width": 12,
+                  "height": 12,
+                  "fill": "#fafafa"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "totalTime",
+              "x": 568,
+              "y": 16,
+              "text": "3:42",
+              "fontSize": 11,
+              "fill": "#a1a1aa",
+              "fontFamily": "Inter"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rightSection",
+          "x": 1100,
+          "y": 16,
+          "name": "Right: Controls + Volume",
+          "width": 324,
+          "height": 40,
+          "fill": "transparent",
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "playPauseBtn",
+              "x": 0,
+              "y": 4,
+              "name": "Play/Pause Button",
+              "width": 32,
+              "height": 32,
+              "fill": "transparent",
+              "cornerRadius": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pauseIcon",
+                  "x": 8,
+                  "y": 6,
+                  "text": "||",
+                  "fontSize": 16,
+                  "fontWeight": 700,
+                  "fill": "#fafafa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "skipBtn",
+              "x": 44,
+              "y": 4,
+              "name": "Skip Forward Button",
+              "width": 32,
+              "height": 32,
+              "fill": "transparent",
+              "cornerRadius": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "skipIcon",
+                  "x": 6,
+                  "y": 6,
+                  "text": ">>",
+                  "fontSize": 14,
+                  "fill": "#a1a1aa",
+                  "fontFamily": "Inter"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "volumeControl",
+              "x": 100,
+              "y": 4,
+              "name": "Volume Control",
+              "width": 120,
+              "height": 32,
+              "fill": "transparent",
+              "layout": "none",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "volumeIcon",
+                  "x": 0,
+                  "y": 6,
+                  "text": "Vol",
+                  "fontSize": 12,
+                  "fill": "#a1a1aa",
+                  "fontFamily": "Inter"
+                },
+                {
+                  "type": "frame",
+                  "id": "volumeTrack",
+                  "x": 32,
+                  "y": 14,
+                  "name": "Volume Slider Track",
+                  "width": 80,
+                  "height": 4,
+                  "fill": "#262626",
+                  "cornerRadius": 2,
+                  "children": [
+                    {
+                      "type": "rectangle",
+                      "id": "volumeFill",
+                      "x": 0,
+                      "y": 0,
+                      "name": "Volume Fill",
+                      "width": 56,
+                      "height": 4,
+                      "fill": "#a1a1aa",
+                      "cornerRadius": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "annotationsPlayer",
+          "x": 16,
+          "y": 80,
+          "name": "Design Annotations",
+          "width": 600,
+          "height": 100,
+          "fill": "transparent",
+          "children": [
+            {
+              "type": "text",
+              "id": "annotPlayer",
+              "x": 0,
+              "y": 0,
+              "text": "PLAYER BAR SPECS:\n- Total height: 72px, fixed at bottom of viewport\n- Background: #141414 with 1px top border #262626\n- Left (300px): Cover 48x48 + title (14px medium) + artist (13px secondary)\n- Center (flex): progress bar 4px tall, green accent fill, thumb on hover\n- Right: Play/Pause (32x32), SkipForward (32x32), Volume slider (80px)\n- All controls are Lucide icons at 20px (h-5 w-5)",
+              "fontSize": 11,
+              "fill": "#71717a",
+              "fontFamily": "Inter"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
