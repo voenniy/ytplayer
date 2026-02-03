@@ -24,4 +24,29 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/suggest", async (req, res) => {
+  const query = req.query.q as string;
+  if (!query) {
+    return res.json([]);
+  }
+
+  try {
+    const url = `https://suggestqueries-clients6.youtube.com/complete/search?client=youtube&ds=yt&q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
+    const text = await response.text();
+
+    // JSONP response: window.google.ac.h([...])
+    const match = text.match(/\[.+\]/s);
+    if (!match) {
+      return res.json([]);
+    }
+
+    const parsed = JSON.parse(match[0]);
+    const suggestions: string[] = parsed[1]?.map((item: any[]) => item[0]) ?? [];
+    res.json(suggestions);
+  } catch {
+    res.json([]);
+  }
+});
+
 export default router;
