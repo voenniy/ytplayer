@@ -2,3 +2,13 @@ node_modules/
 dist/
 .env
 *.db
+
+# AI tool skills/config (generated)
+.agent/
+.claude/skills/
+.codex/
+.gemini/
+.kiro/
+.opencode/
+.windsurf/
+skills/

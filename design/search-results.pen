@@ -34,18 +34,14 @@
               "height": 40,
               "fill": "#1a1a1a",
               "cornerRadius": 8,
-              "stroke": "#262626",
-              "strokeWidth": 1,
               "children": [
                 {
                   "type": "text",
                   "id": "searchPlaceholder",
-                  "x": 12,
-                  "y": 11,
-                  "text": "Paste YouTube link or search...",
-                  "fontSize": 14,
                   "fill": "#71717a",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -63,13 +59,10 @@
                 {
                   "type": "text",
                   "id": "searchIcon",
-                  "x": 12,
-                  "y": 10,
-                  "text": "Q",
-                  "fontSize": 16,
-                  "fontWeight": 600,
                   "fill": "#0a0a0a",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -80,11 +73,10 @@
           "id": "resultsLabel",
           "x": 24,
           "y": 88,
-          "text": "Results",
-          "fontSize": 13,
-          "fontWeight": 600,
           "fill": "#a1a1aa",
-          "fontFamily": "Inter"
+          "fontFamily": "Inter",
+          "fontSize": 13,
+          "fontWeight": "normal"
         },
         {
           "type": "frame",
@@ -100,44 +92,43 @@
           "children": [
             {
               "type": "rectangle",
+              "cornerRadius": 4,
               "id": "t1Cover",
               "x": 8,
               "y": 4,
-              "width": 48,
-              "height": 48,
               "fill": "#1a1a1a",
-              "cornerRadius": 4
+              "width": 48,
+              "height": 48
             },
             {
               "type": "text",
               "id": "t1Title",
               "x": 68,
               "y": 8,
-              "text": "Lofi Hip Hop Radio - Beats to Relax/Study to",
-              "fontSize": 14,
-              "fontWeight": 500,
               "fill": "#fafafa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t1Artist",
               "x": 68,
               "y": 30,
-              "text": "Lofi Girl",
-              "fontSize": 13,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t1Duration",
               "x": 820,
               "y": 20,
-              "text": "3:42",
-              "fontSize": 12,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -153,12 +144,10 @@
                 {
                   "type": "text",
                   "id": "t1AddIcon",
-                  "x": 5,
-                  "y": 3,
-                  "text": "+",
-                  "fontSize": 16,
                   "fill": "#71717a",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -178,44 +167,43 @@
           "children": [
             {
               "type": "rectangle",
+              "cornerRadius": 4,
               "id": "t2Cover",
               "x": 8,
               "y": 4,
-              "width": 48,
-              "height": 48,
               "fill": "#1a1a1a",
-              "cornerRadius": 4
+              "width": 48,
+              "height": 48
             },
             {
               "type": "text",
               "id": "t2Title",
               "x": 68,
               "y": 8,
-              "text": "Jazzy Hip Hop - Nujabes Type Beat",
-              "fontSize": 14,
-              "fontWeight": 500,
               "fill": "#fafafa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t2Artist",
               "x": 68,
               "y": 30,
-              "text": "Chillhop Music",
-              "fontSize": 13,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t2Duration",
               "x": 820,
               "y": 20,
-              "text": "5:17",
-              "fontSize": 12,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -231,12 +219,10 @@
                 {
                   "type": "text",
                   "id": "t2AddIcon",
-                  "x": 5,
-                  "y": 3,
-                  "text": "+",
-                  "fontSize": 16,
                   "fill": "#fafafa",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -256,44 +242,43 @@
           "children": [
             {
               "type": "rectangle",
+              "cornerRadius": 4,
               "id": "t3Cover",
               "x": 8,
               "y": 4,
-              "width": 48,
-              "height": 48,
               "fill": "#1a1a1a",
-              "cornerRadius": 4
+              "width": 48,
+              "height": 48
             },
             {
               "type": "text",
               "id": "t3Title",
               "x": 68,
               "y": 8,
-              "text": "Coffee Shop Jazz - Relaxing Background Music",
-              "fontSize": 14,
-              "fontWeight": 500,
               "fill": "#fafafa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t3Artist",
               "x": 68,
               "y": 30,
-              "text": "Cafe Music BGM Channel",
-              "fontSize": 13,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t3Duration",
               "x": 816,
               "y": 20,
-              "text": "12:04",
-              "fontSize": 12,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -309,12 +294,10 @@
                 {
                   "type": "text",
                   "id": "t3AddIcon",
-                  "x": 5,
-                  "y": 3,
-                  "text": "+",
-                  "fontSize": 16,
                   "fill": "#71717a",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -334,44 +317,43 @@
           "children": [
             {
               "type": "rectangle",
+              "cornerRadius": 4,
               "id": "t4Cover",
               "x": 8,
               "y": 4,
-              "width": 48,
-              "height": 48,
               "fill": "#1a1a1a",
-              "cornerRadius": 4
+              "width": 48,
+              "height": 48
             },
             {
               "type": "text",
               "id": "t4Title",
               "x": 68,
               "y": 8,
-              "text": "Ambient Study Music - Deep Focus",
-              "fontSize": 14,
-              "fontWeight": 500,
               "fill": "#fafafa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t4Artist",
               "x": 68,
               "y": 30,
-              "text": "Greenred Productions",
-              "fontSize": 13,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "t4Duration",
               "x": 820,
               "y": 20,
-              "text": "4:55",
-              "fontSize": 12,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -387,12 +369,10 @@
                 {
                   "type": "text",
                   "id": "t4AddIcon",
-                  "x": 5,
-                  "y": 3,
-                  "text": "+",
-                  "fontSize": 16,
                   "fill": "#71717a",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -411,12 +391,10 @@
             {
               "type": "text",
               "id": "annotationText",
-              "x": 0,
-              "y": 0,
-              "text": "NOTES:\n- Row 2 shows HOVER state (bg: #222222, + button visible)\n- Clicking row plays track immediately\n- + button adds to queue without playing\n- Cover images are 48x48 with 4px radius",
-              "fontSize": 11,
               "fill": "#71717a",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "normal"
             }
           ]
         }

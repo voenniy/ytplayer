@@ -18,9 +18,9 @@
           "id": "topBorder",
           "x": 0,
           "y": 0,
+          "fill": "#262626",
           "width": 1440,
-          "height": 1,
-          "fill": "#262626"
+          "height": 1
         },
         {
           "type": "frame",
@@ -35,35 +35,34 @@
           "children": [
             {
               "type": "rectangle",
+              "cornerRadius": 4,
               "id": "coverArt",
               "x": 0,
               "y": 0,
               "name": "Cover Art 48x48",
-              "width": 48,
-              "height": 48,
               "fill": "#1a1a1a",
-              "cornerRadius": 4
+              "width": 48,
+              "height": 48
             },
             {
               "type": "text",
               "id": "trackTitle",
               "x": 60,
               "y": 4,
-              "text": "Lofi Hip Hop Radio - Beats to Relax",
-              "fontSize": 14,
-              "fontWeight": 500,
               "fill": "#fafafa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
               "id": "trackArtist",
               "x": 60,
               "y": 26,
-              "text": "Lofi Girl",
-              "fontSize": 13,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -83,10 +82,10 @@
               "id": "currentTime",
               "x": 0,
               "y": 16,
-              "text": "1:24",
-              "fontSize": 11,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -101,24 +100,20 @@
               "children": [
                 {
                   "type": "rectangle",
+                  "cornerRadius": 2,
                   "id": "progressFill",
-                  "x": 0,
-                  "y": 0,
                   "name": "Progress Fill (accent green)",
-                  "width": 195,
-                  "height": 4,
                   "fill": "#22c55e",
-                  "cornerRadius": 2
+                  "width": 195,
+                  "height": 4
                 },
                 {
                   "type": "ellipse",
                   "id": "progressThumb",
-                  "x": 191,
-                  "y": -4,
                   "name": "Thumb (visible on hover)",
+                  "fill": "#fafafa",
                   "width": 12,
-                  "height": 12,
-                  "fill": "#fafafa"
+                  "height": 12
                 }
               ]
             },
@@ -127,10 +122,10 @@
               "id": "totalTime",
               "x": 568,
               "y": 16,
-              "text": "3:42",
-              "fontSize": 11,
               "fill": "#a1a1aa",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -159,13 +154,10 @@
                 {
                   "type": "text",
                   "id": "pauseIcon",
-                  "x": 8,
-                  "y": 6,
-                  "text": "||",
-                  "fontSize": 16,
-                  "fontWeight": 700,
                   "fill": "#fafafa",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -183,12 +175,10 @@
                 {
                   "type": "text",
                   "id": "skipIcon",
-                  "x": 6,
-                  "y": 6,
-                  "text": ">>",
-                  "fontSize": 14,
                   "fill": "#a1a1aa",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -208,10 +198,10 @@
                   "id": "volumeIcon",
                   "x": 0,
                   "y": 6,
-                  "text": "Vol",
-                  "fontSize": 12,
                   "fill": "#a1a1aa",
-                  "fontFamily": "Inter"
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -226,14 +216,12 @@
                   "children": [
                     {
                       "type": "rectangle",
+                      "cornerRadius": 2,
                       "id": "volumeFill",
-                      "x": 0,
-                      "y": 0,
                       "name": "Volume Fill",
-                      "width": 56,
-                      "height": 4,
                       "fill": "#a1a1aa",
-                      "cornerRadius": 2
+                      "width": 56,
+                      "height": 4
                     }
                   ]
                 }
@@ -254,12 +242,10 @@
             {
               "type": "text",
               "id": "annotPlayer",
-              "x": 0,
-              "y": 0,
-              "text": "PLAYER BAR SPECS:\n- Total height: 72px, fixed at bottom of viewport\n- Background: #141414 with 1px top border #262626\n- Left (300px): Cover 48x48 + title (14px medium) + artist (13px secondary)\n- Center (flex): progress bar 4px tall, green accent fill, thumb on hover\n- Right: Play/Pause (32x32), SkipForward (32x32), Volume slider (80px)\n- All controls are Lucide icons at 20px (h-5 w-5)",
-              "fontSize": 11,
               "fill": "#71717a",
-              "fontFamily": "Inter"
+              "fontFamily": "Inter",
+              "fontSize": 11,
+              "fontWeight": "normal"
             }
           ]
         }
