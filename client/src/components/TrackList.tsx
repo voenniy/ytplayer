@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlaylistsStore } from "@/stores/playlists";
-import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, MoreVertical, Volume2, Pause } from "lucide-react";
+import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, MoreVertical, Volume2, Pause, ExternalLink } from "lucide-react";
 import { usePlayerStore } from "@/stores/player";
 
 interface TrackListProps {
@@ -203,6 +203,13 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <TrackPlaylistSubmenu track={track} />
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a href={`https://www.youtube.com/watch?v=${track.id}`} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    YouTube
+                  </a>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

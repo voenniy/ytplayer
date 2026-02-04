@@ -2,7 +2,7 @@ import { useEffect, useCallback } from "react";
 import { usePlaylistsStore } from "@/stores/playlists";
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, GripVertical, X, Volume2, Pause } from "lucide-react";
+import { ArrowLeft, Play, GripVertical, X, Volume2, Pause, ExternalLink } from "lucide-react";
 import type { Track } from "@/lib/api";
 
 interface PlaylistDetailProps {
@@ -111,6 +111,16 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
               <p className="text-sm font-medium truncate">{track.title}</p>
               <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
             </div>
+            <a
+              href={`https://www.youtube.com/watch?v=${track.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-7 w-7 opacity-0 group-hover:opacity-100 shrink-0 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
+              onClick={(e) => e.stopPropagation()}
+              title="YouTube"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
             <Button
               variant="ghost"
               size="icon"

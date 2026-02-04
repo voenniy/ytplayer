@@ -1,7 +1,7 @@
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Shuffle, Trash2, Volume2, Pause } from "lucide-react";
+import { X, Shuffle, Trash2, Volume2, Pause, ExternalLink } from "lucide-react";
 
 export function Queue() {
   const queue = usePlayerStore((s) => s.queue);
@@ -57,6 +57,16 @@ export function Queue() {
                   <p className={`text-xs font-medium truncate ${isCurrent ? "text-primary" : ""}`}>{track.title}</p>
                   <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
                 </div>
+                <a
+                  href={`https://www.youtube.com/watch?v=${track.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 shrink-0 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground"
+                  onClick={(e) => e.stopPropagation()}
+                  title="YouTube"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </a>
                 <Button
                   variant="ghost"
                   size="icon"
