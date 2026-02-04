@@ -14,6 +14,8 @@ import { searchTracks } from "@/lib/api";
 import { usePlayerStore } from "@/stores/player";
 import { useAudio } from "@/hooks/useAudio";
 import { useMediaSession } from "@/hooks/useMediaSession";
+import { useAuth } from "@/contexts/AuthContext";
+import { LoginPage } from "@/components/LoginPage";
 
 function MobilePlaylistsView() {
   const [openId, setOpenId] = useState<number | null>(null);
@@ -24,6 +26,20 @@ function MobilePlaylistsView() {
 }
 
 function App() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div className="h-screen bg-background flex items-center justify-center">
+      <p className="text-muted-foreground">Загрузка...</p>
+    </div>;
+  }
+
+  if (!user) return <LoginPage />;
+
+  return <AuthenticatedApp />;
+}
+
+function AuthenticatedApp() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("search");
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const [lastQuery, setLastQuery] = useState(
