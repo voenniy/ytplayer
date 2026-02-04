@@ -145,9 +145,14 @@ export const usePlayerStore = create<PlayerState>()(
       }),
       migrate: (persisted) => persisted as any,
       onRehydrateStorage: () => {
-        return (state, error) => {
-          if (error) console.error("[PERSIST] hydration error:", error);
-          else console.log("[PERSIST] hydrated, currentTrack:", state?.currentTrack?.id ?? "null");
+        return (state) => {
+          if (!state) return;
+          // Recover currentTrack from queue if lost during migration
+          if (!state.currentTrack && state.queue.length > 0) {
+            const idx = Math.max(0, state.currentIndex);
+            const track = state.queue[idx] ?? state.queue[0];
+            usePlayerStore.setState({ currentTrack: track, currentIndex: idx });
+          }
         };
       },
     },
