@@ -9,7 +9,7 @@ export interface Playlist {
 }
 
 export async function fetchPlaylists(): Promise<Playlist[]> {
-  const res = await fetch(`${API_BASE}/playlists`);
+  const res = await fetch(`${API_BASE}/playlists`, { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch playlists");
   return res.json();
 }
@@ -18,6 +18,7 @@ export async function createPlaylist(name: string): Promise<Playlist> {
   const res = await fetch(`${API_BASE}/playlists`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ name }),
   });
   if (!res.ok) throw new Error("Failed to create playlist");
@@ -25,11 +26,11 @@ export async function createPlaylist(name: string): Promise<Playlist> {
 }
 
 export async function deletePlaylist(id: number): Promise<void> {
-  await fetch(`${API_BASE}/playlists/${id}`, { method: "DELETE" });
+  await fetch(`${API_BASE}/playlists/${id}`, { method: "DELETE", credentials: "include" });
 }
 
 export async function fetchPlaylistTracks(playlistId: number): Promise<Track[]> {
-  const res = await fetch(`${API_BASE}/playlists/${playlistId}/tracks`);
+  const res = await fetch(`${API_BASE}/playlists/${playlistId}/tracks`, { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch playlist tracks");
   return res.json();
 }
@@ -38,6 +39,7 @@ export async function addTrackToPlaylist(playlistId: number, track: Track): Prom
   await fetch(`${API_BASE}/playlists/${playlistId}/tracks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({
       video_id: track.id,
       title: track.title,
@@ -51,13 +53,14 @@ export async function addTrackToPlaylist(playlistId: number, track: Track): Prom
 }
 
 export async function removeTrackFromPlaylist(playlistId: number, trackId: number): Promise<void> {
-  await fetch(`${API_BASE}/playlists/${playlistId}/tracks/${trackId}`, { method: "DELETE" });
+  await fetch(`${API_BASE}/playlists/${playlistId}/tracks/${trackId}`, { method: "DELETE", credentials: "include" });
 }
 
 export async function reorderPlaylistTracks(playlistId: number, trackIds: number[]): Promise<void> {
   await fetch(`${API_BASE}/playlists/${playlistId}/tracks/reorder`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ trackIds }),
   });
 }
