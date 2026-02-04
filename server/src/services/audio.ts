@@ -34,23 +34,19 @@ export function invalidateCache(videoId: string): void {
   cache.delete(videoId);
 }
 
-const EXT_TO_CONTENT_TYPE: Record<string, string> = {
-  webm: "audio/webm",
-  m4a: "audio/mp4",
-  mp4: "audio/mp4",
-  ogg: "audio/ogg",
-  opus: "audio/ogg",
-};
-
-function pickBestAudioFormat(formats: any[]): { url: string; filesize: number; ext: string } | null {
+function pickBestAudioFormat(formats: any[]): { url: string; contentLength: number; mimeType: string } | null {
   const audioOnly = formats.filter((f) => f.vcodec === "none" && f.acodec !== "none" && f.url);
   if (audioOnly.length === 0) return null;
   audioOnly.sort((a, b) => (b.abr || 0) - (a.abr || 0));
   const best = audioOnly[0];
+  // mime_type from yt-dlp: "audio/webm; codecs=opus" — strip codecs for Content-Type
+  const mimeType = best.mime_type
+    ? best.mime_type.split(";")[0].trim()
+    : "audio/webm";
   return {
     url: best.url,
-    filesize: best.filesize || best.filesize_approx || 0,
-    ext: best.ext || "webm",
+    contentLength: best.content_length || best.filesize || best.filesize_approx || 0,
+    mimeType,
   };
 }
 
@@ -91,8 +87,8 @@ export async function resolveAudioUrl(videoId: string): Promise<AudioInfo> {
 
   const entry: CacheEntry = {
     audioUrl: best.url,
-    contentLength: best.filesize,
-    contentType: EXT_TO_CONTENT_TYPE[best.ext] || "audio/webm",
+    contentLength: best.contentLength,
+    contentType: best.mimeType,
     expiresAt: Date.now() + CACHE_TTL,
   };
 

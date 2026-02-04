@@ -36,32 +36,32 @@ const SAMPLE_FORMATS = {
       vcodec: "avc1",
       acodec: "mp4a",
       abr: 128,
-      filesize: 5000000,
-      ext: "mp4",
+      content_length: 5000000,
+      mime_type: "video/mp4; codecs=\"avc1.42001E, mp4a.40.2\"",
     },
     {
       url: "https://example.com/audio-low.webm",
       vcodec: "none",
       acodec: "opus",
       abr: 64,
-      filesize: 1000000,
-      ext: "webm",
+      content_length: 1000000,
+      mime_type: "audio/webm; codecs=\"opus\"",
     },
     {
       url: "https://example.com/audio-high.webm",
       vcodec: "none",
       acodec: "opus",
       abr: 160,
-      filesize: 3000000,
-      ext: "webm",
+      content_length: 3000000,
+      mime_type: "audio/webm; codecs=\"opus\"",
     },
     {
       url: "https://example.com/audio.m4a",
       vcodec: "none",
       acodec: "mp4a",
       abr: 128,
-      filesize: 2000000,
-      ext: "m4a",
+      content_length: 2000000,
+      mime_type: "audio/mp4; codecs=\"mp4a.40.2\"",
     },
   ],
 };
@@ -152,8 +152,8 @@ describe("resolveAudioUrl", () => {
           vcodec: "none",
           acodec: "mp4a",
           abr: 128,
-          filesize: 2000000,
-          ext: "m4a",
+          content_length: 2000000,
+          mime_type: "audio/mp4; codecs=\"mp4a.40.2\"",
         },
       ],
     };
@@ -166,7 +166,7 @@ describe("resolveAudioUrl", () => {
     expect(result.contentLength).toBe(2000000);
   });
 
-  it("returns correct contentType for webm (audio/webm)", async () => {
+  it("returns correct contentType from mime_type field", async () => {
     const webmFormats = {
       formats: [
         {
@@ -174,8 +174,8 @@ describe("resolveAudioUrl", () => {
           vcodec: "none",
           acodec: "opus",
           abr: 128,
-          filesize: 1500000,
-          ext: "webm",
+          content_length: 1500000,
+          mime_type: "audio/webm; codecs=\"opus\"",
         },
       ],
     };
@@ -194,8 +194,8 @@ describe("resolveAudioUrl", () => {
           vcodec: "avc1",
           acodec: "none",
           abr: 0,
-          filesize: 5000000,
-          ext: "mp4",
+          content_length: 5000000,
+          mime_type: "video/mp4",
         },
       ],
     };
