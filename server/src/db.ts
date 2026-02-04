@@ -27,6 +27,22 @@ export function initDb(path: string = process.env.DB_PATH || "./musicplay.db"): 
       position INTEGER NOT NULL,
       added_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS player_state (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id),
+      queue TEXT NOT NULL DEFAULT '[]',
+      current_index INTEGER NOT NULL DEFAULT 0,
+      position REAL NOT NULL DEFAULT 0,
+      repeat_mode TEXT NOT NULL DEFAULT 'off',
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
   `);
 
   // Миграция: добавить колонки если таблица уже существует без них
@@ -37,6 +53,13 @@ export function initDb(path: string = process.env.DB_PATH || "./musicplay.db"): 
   }
   if (!colNames.has("like_count")) {
     db.exec("ALTER TABLE playlist_tracks ADD COLUMN like_count INTEGER DEFAULT 0");
+  }
+
+  // Миграция: добавить user_id в playlists
+  const playlistCols = db.prepare("PRAGMA table_info(playlists)").all() as any[];
+  const playlistColNames = new Set(playlistCols.map((c: any) => c.name));
+  if (!playlistColNames.has("user_id")) {
+    db.exec("ALTER TABLE playlists ADD COLUMN user_id INTEGER REFERENCES users(id)");
   }
 }
 
