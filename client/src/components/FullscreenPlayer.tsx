@@ -6,7 +6,7 @@ import {
   DrawerContent,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Play, Pause, SkipBack, SkipForward, ChevronDown } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, ChevronDown, Repeat1 } from "lucide-react";
 import { VisuallyHidden } from "radix-ui";
 const VisuallyHiddenRoot = VisuallyHidden.Root;
 
@@ -23,8 +23,10 @@ interface FullscreenPlayerProps {
 
 function formatTime(sec: number): string {
   if (!sec || !isFinite(sec)) return "0:00";
-  const m = Math.floor(sec / 60);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
   const s = Math.floor(sec % 60);
+  if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
@@ -40,6 +42,8 @@ export function FullscreenPlayer({
 }: FullscreenPlayerProps) {
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const repeatMode = usePlayerStore((s) => s.repeatMode);
+  const toggleRepeat = usePlayerStore((s) => s.toggleRepeat);
 
   if (!currentTrack) return null;
 
@@ -120,6 +124,11 @@ export function FullscreenPlayer({
             </button>
             <Button variant="ghost" size="icon" className="h-12 w-12" onClick={onNext}>
               <SkipForward className="h-6 w-6" />
+            </Button>
+          </div>
+          <div className="flex justify-center">
+            <Button variant="ghost" size="icon" onClick={toggleRepeat}>
+              <Repeat1 className={`h-5 w-5 ${repeatMode === "one" ? "text-green-500" : ""}`} />
             </Button>
           </div>
         </div>

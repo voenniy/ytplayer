@@ -7,6 +7,7 @@ interface PlayerState {
   queue: Track[];
   currentIndex: number;
   isPlaying: boolean;
+  repeatMode: "off" | "one";
   searchResults: Track[];
   nextPageToken: string | null;
 
@@ -18,6 +19,7 @@ interface PlayerState {
   removeFromQueue: (index: number) => void;
   playNext: () => void;
   playPrev: () => void;
+  toggleRepeat: () => void;
   setSearchResults: (tracks: Track[], nextPageToken?: string) => void;
   appendSearchResults: (tracks: Track[], nextPageToken?: string) => void;
   clearQueue: () => void;
@@ -31,6 +33,7 @@ export const usePlayerStore = create<PlayerState>()(
       queue: [],
       currentIndex: -1,
       isPlaying: false,
+      repeatMode: "off" as const,
       searchResults: [],
       nextPageToken: null,
 
@@ -85,6 +88,11 @@ export const usePlayerStore = create<PlayerState>()(
         });
       },
 
+      toggleRepeat: () =>
+        set((state) => ({
+          repeatMode: state.repeatMode === "off" ? "one" : "off",
+        })),
+
       playPrev: () => {
         const { queue, currentIndex } = get();
         if (currentIndex <= 0) return;
@@ -130,6 +138,7 @@ export const usePlayerStore = create<PlayerState>()(
         currentTrack: state.currentTrack,
         queue: state.queue,
         currentIndex: state.currentIndex,
+        repeatMode: state.repeatMode,
         searchResults: state.searchResults,
         nextPageToken: state.nextPageToken,
       }),

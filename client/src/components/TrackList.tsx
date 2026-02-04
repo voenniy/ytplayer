@@ -12,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlaylistsStore } from "@/stores/playlists";
-import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, MoreVertical } from "lucide-react";
+import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, MoreVertical, Volume2, Pause } from "lucide-react";
+import { usePlayerStore } from "@/stores/player";
 
 interface TrackListProps {
   tracks: Track[];
@@ -89,6 +90,8 @@ function TrackPlaylistSubmenu({ track }: { track: Track }) {
 }
 
 export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, isLoading }: TrackListProps) {
+  const currentTrackId = usePlayerStore((s) => s.currentTrack?.id);
+  const storeIsPlaying = usePlayerStore((s) => s.isPlaying);
   const [sortField, setSortField] = useState<SortField>("default");
   const [sortAsc, setSortAsc] = useState(false);
 
@@ -140,13 +143,25 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
         ))}
       </div>
       <div className="space-y-1">
-        {sortedTracks.map((track) => (
+        {sortedTracks.map((track) => {
+          const isCurrent = track.id === currentTrackId;
+          return (
           <div
             key={track.id}
-            className="flex items-center gap-3 p-2 rounded-md hover:bg-muted cursor-pointer group"
+            className={`flex items-center gap-3 p-2 rounded-md cursor-pointer group ${isCurrent ? "bg-accent" : "hover:bg-muted"}`}
             onClick={() => onPlay(track)}
           >
-            <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded object-cover" />
+            {isCurrent ? (
+              <div className="w-12 h-12 rounded flex items-center justify-center bg-primary/10">
+                {storeIsPlaying ? (
+                  <Volume2 className="h-5 w-5 text-primary" />
+                ) : (
+                  <Pause className="h-5 w-5 text-primary" />
+                )}
+              </div>
+            ) : (
+              <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded object-cover" />
+            )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{track.title}</p>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -166,6 +181,15 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               </div>
             </div>
             <span className="text-xs text-muted-foreground">{formatDuration(track.duration)}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="opacity-0 group-hover:opacity-100 shrink-0"
+              onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}
+              title="В очередь"
+            >
+              <ListPlus className="h-4 w-4" />
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -178,14 +202,12 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}>
-                  <ListPlus className="h-4 w-4 mr-2" /> В очередь
-                </DropdownMenuItem>
                 <TrackPlaylistSubmenu track={track} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        ))}
+          );
+        })}
       </div>
       {hasMore && onLoadMore && (
         <div className="flex justify-center pt-2 pb-4">

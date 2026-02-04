@@ -45,18 +45,21 @@ function App() {
   const storeResume = usePlayerStore((s) => s.resume);
   const playNext = usePlayerStore((s) => s.playNext);
   const playPrev = usePlayerStore((s) => s.playPrev);
+  const repeatMode = usePlayerStore((s) => s.repeatMode);
 
   // Single audio instance shared across desktop and mobile
-  const audio = useAudio(playNext);
+  const audio = useAudio(playNext, repeatMode === "one");
 
   // Play track when currentTrack changes; on hydration just load without playing
   useEffect(() => {
     if (!currentTrack) return;
 
-    // On hydration: load audio + restore position, don't play
+    // On hydration: load audio + restore position, don't auto-play
+    // (Chrome blocks autoplay without user interaction)
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
       prevTrackIdRef.current = currentTrack.id;
+      if (storeIsPlaying) storePause();
       audio.load(currentTrack.id);
       const pos = localStorage.getItem("musicplay-position");
       if (pos) {

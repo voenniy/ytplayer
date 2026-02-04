@@ -27,9 +27,11 @@ function loadSavedVolume(): number {
   return saved ? parseFloat(saved) : 1;
 }
 
-export function useAudio(onEnded?: () => void): UseAudioReturn {
+export function useAudio(onEnded?: () => void, repeatOne?: boolean): UseAudioReturn {
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
+  const repeatOneRef = useRef(repeatOne);
+  repeatOneRef.current = repeatOne;
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -60,6 +62,13 @@ export function useAudio(onEnded?: () => void): UseAudioReturn {
       }
     };
     const onEndedHandler = () => {
+      if (repeatOneRef.current) {
+        audio.currentTime = 0;
+        audio.play().catch((err) => {
+          if (err.name !== "AbortError") console.error("Repeat failed:", err);
+        });
+        return;
+      }
       setIsPlaying(false);
       onEndedRef.current?.();
     };

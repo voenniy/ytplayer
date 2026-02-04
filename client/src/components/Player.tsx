@@ -1,12 +1,14 @@
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, SkipForward, Volume2 } from "lucide-react";
+import { Play, Pause, SkipForward, Volume2, Repeat1 } from "lucide-react";
 
 function formatTime(sec: number): string {
   if (!sec || !isFinite(sec)) return "0:00";
-  const m = Math.floor(sec / 60);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
   const s = Math.floor(sec % 60);
+  if (h > 0) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
@@ -31,6 +33,8 @@ export function Player({
 }: PlayerProps) {
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const storeIsPlaying = usePlayerStore((s) => s.isPlaying);
+  const repeatMode = usePlayerStore((s) => s.repeatMode);
+  const toggleRepeat = usePlayerStore((s) => s.toggleRepeat);
 
   if (!currentTrack) return null;
 
@@ -63,6 +67,9 @@ export function Player({
           </Button>
           <Button variant="ghost" size="icon" onClick={onNext}>
             <SkipForward className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={toggleRepeat}>
+            <Repeat1 className={`h-5 w-5 ${repeatMode === "one" ? "text-green-500" : ""}`} />
           </Button>
           <div className="flex items-center gap-1 ml-2">
             <Volume2 className="h-4 w-4 text-muted-foreground" />

@@ -2,7 +2,7 @@ import { useEffect, useCallback } from "react";
 import { usePlaylistsStore } from "@/stores/playlists";
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, GripVertical, X } from "lucide-react";
+import { ArrowLeft, Play, GripVertical, X, Volume2, Pause } from "lucide-react";
 import type { Track } from "@/lib/api";
 
 interface PlaylistDetailProps {
@@ -21,6 +21,8 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
   const play = usePlayerStore((s) => s.play);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const currentTrackId = usePlayerStore((s) => s.currentTrack?.id);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
 
   const playlist = playlists.find((p) => p.id === playlistId);
 
@@ -82,17 +84,29 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
         </Button>
       </div>
       <div className="space-y-0.5">
-        {tracks.map((track, index) => (
+        {tracks.map((track, index) => {
+          const isCurrent = track.id === currentTrackId;
+          return (
           <div
             key={track._rowId ?? track.id}
-            className="flex items-center gap-2 p-2 rounded-md hover:bg-muted group"
+            className={`flex items-center gap-2 p-2 rounded-md group ${isCurrent ? "bg-accent" : "hover:bg-muted"}`}
             draggable
             onDragStart={(e) => handleDragStart(e, index)}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, index)}
           >
             <GripVertical className="h-4 w-4 text-muted-foreground/40 cursor-grab shrink-0" />
-            <img src={track.thumbnail} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+            {isCurrent ? (
+              <div className="w-10 h-10 rounded flex items-center justify-center bg-primary/10 shrink-0">
+                {isPlaying ? (
+                  <Volume2 className="h-4 w-4 text-primary" />
+                ) : (
+                  <Pause className="h-4 w-4 text-primary" />
+                )}
+              </div>
+            ) : (
+              <img src={track.thumbnail} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+            )}
             <div className="flex-1 min-w-0 cursor-pointer" onClick={() => play(track)}>
               <p className="text-sm font-medium truncate">{track.title}</p>
               <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
@@ -106,7 +120,8 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
               <X className="h-4 w-4" />
             </Button>
           </div>
-        ))}
+          );
+        })}
         {tracks.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">Плейлист пуст</p>
         )}
