@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlaylistsStore } from "@/stores/playlists";
-import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, Volume2, Pause, ExternalLink, FolderPlus } from "lucide-react";
+import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, Volume2, Pause, ExternalLink, FolderPlus, MoreVertical } from "lucide-react";
 import { usePlayerStore } from "@/stores/player";
 import { handleImgError } from "@/lib/img-fallback";
 
@@ -147,7 +147,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
             onClick={() => onPlay(track)}
           >
             {isCurrent ? (
-              <div className="w-12 h-12 rounded flex items-center justify-center bg-primary/10">
+              <div className="w-12 h-12 rounded flex items-center justify-center bg-primary/10 shrink-0">
                 {storeIsPlaying ? (
                   <Volume2 className="h-5 w-5 text-primary" />
                 ) : (
@@ -155,32 +155,50 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                 )}
               </div>
             ) : (
-              <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded object-cover" onError={handleImgError} />
+              <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded object-cover shrink-0" onError={handleImgError} />
             )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{track.title}</p>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="truncate">{track.artist}</span>
+                <span className="shrink-0">{formatDuration(track.duration)}</span>
+              </div>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground md:hidden">
                 {track.viewCount > 0 && (
-                  <span className="flex items-center gap-0.5 shrink-0">
+                  <span className="flex items-center gap-0.5">
                     <Eye className="h-3 w-3" />
                     {formatCount(track.viewCount)}
                   </span>
                 )}
                 {track.likeCount > 0 && (
-                  <span className="flex items-center gap-0.5 shrink-0">
+                  <span className="flex items-center gap-0.5">
                     <ThumbsUp className="h-3 w-3" />
                     {formatCount(track.likeCount)}
                   </span>
                 )}
               </div>
             </div>
-            <span className="text-xs text-muted-foreground">{formatDuration(track.duration)}</span>
+            {/* Desktop: inline stats + duration */}
+            <div className="hidden md:flex items-center gap-3 text-xs text-muted-foreground shrink-0">
+              {track.viewCount > 0 && (
+                <span className="flex items-center gap-0.5">
+                  <Eye className="h-3 w-3" />
+                  {formatCount(track.viewCount)}
+                </span>
+              )}
+              {track.likeCount > 0 && (
+                <span className="flex items-center gap-0.5">
+                  <ThumbsUp className="h-3 w-3" />
+                  {formatCount(track.likeCount)}
+                </span>
+              )}
+            </div>
+            {/* Desktop: hover action buttons */}
             <a
               href={`https://www.youtube.com/watch?v=${track.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="opacity-0 group-hover:opacity-100 shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+              className="hidden md:inline-flex opacity-0 group-hover:opacity-100 shrink-0 items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
               onClick={(e) => e.stopPropagation()}
               title="YouTube"
             >
@@ -189,7 +207,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
             <Button
               variant="ghost"
               size="icon"
-              className="opacity-0 group-hover:opacity-100 shrink-0"
+              className="hidden md:inline-flex opacity-0 group-hover:opacity-100 shrink-0"
               onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}
               title="В очередь"
             >
@@ -200,7 +218,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="opacity-0 group-hover:opacity-100 shrink-0"
+                  className="hidden md:inline-flex opacity-0 group-hover:opacity-100 shrink-0"
                   onClick={(e) => e.stopPropagation()}
                   title="В плейлист"
                 >
@@ -209,6 +227,39 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <TrackPlaylistMenu track={track} />
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {/* Mobile: ⋮ menu with all actions */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden shrink-0 h-8 w-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}>
+                  <ListPlus className="h-4 w-4 mr-2" />
+                  В очередь
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <TrackPlaylistMenu track={track} />
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <a
+                    href={`https://www.youtube.com/watch?v=${track.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    YouTube
+                  </a>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

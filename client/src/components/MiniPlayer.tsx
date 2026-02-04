@@ -1,6 +1,15 @@
+import { useEffect } from "react";
 import { usePlayerStore } from "@/stores/player";
+import { usePlaylistsStore } from "@/stores/playlists";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, SkipForward } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Play, Pause, SkipForward, ListPlus, FolderPlus, Plus } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
 
 interface MiniPlayerProps {
@@ -20,6 +29,13 @@ export function MiniPlayer({
 }: MiniPlayerProps) {
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const playlists = usePlaylistsStore((s) => s.playlists);
+  const createPlaylist = usePlaylistsStore((s) => s.createPlaylist);
+  const addTrackToPlaylist = usePlaylistsStore((s) => s.addTrack);
+  const loadPlaylists = usePlaylistsStore((s) => s.loadPlaylists);
+
+  useEffect(() => { loadPlaylists(); }, [loadPlaylists]);
 
   if (!currentTrack) return null;
 
@@ -77,6 +93,49 @@ export function MiniPlayer({
         >
           <SkipForward className="h-4 w-4" />
         </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          onClick={(e) => {
+            e.stopPropagation();
+            addToQueue(currentTrack);
+          }}
+          title="В очередь"
+        >
+          <ListPlus className="h-4 w-4" />
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0"
+              onClick={(e) => e.stopPropagation()}
+              title="В плейлист"
+            >
+              <FolderPlus className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {playlists.map((pl) => (
+              <DropdownMenuItem key={pl.id} onClick={() => addTrackToPlaylist(pl.id, currentTrack)}>
+                {pl.name}
+              </DropdownMenuItem>
+            ))}
+            {playlists.length > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuItem onClick={async () => {
+              const name = prompt("Название плейлиста:");
+              if (!name?.trim()) return;
+              await createPlaylist(name.trim());
+              const { playlists: updated } = usePlaylistsStore.getState();
+              if (updated.length > 0) addTrackToPlaylist(updated[0].id, currentTrack);
+            }}>
+              <Plus className="h-4 w-4 mr-2 text-green-500" />
+              <span className="text-green-500">Создать новый</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
