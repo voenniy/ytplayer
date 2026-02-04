@@ -130,6 +130,8 @@ describe("resolveAudioUrl", () => {
       "--dump-json",
       "--no-warnings",
       "--no-playlist",
+      "--extractor-args",
+      "youtube:player_client=android_vr",
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     ]);
   });
