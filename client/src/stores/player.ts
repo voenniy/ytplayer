@@ -100,10 +100,14 @@ export const usePlayerStore = create<PlayerState>()(
         set({ searchResults: tracks, nextPageToken: nextPageToken ?? null }),
 
       appendSearchResults: (tracks, nextPageToken) =>
-        set((state) => ({
-          searchResults: [...state.searchResults, ...tracks],
-          nextPageToken: nextPageToken ?? null,
-        })),
+        set((state) => {
+          const existingIds = new Set(state.searchResults.map((t) => t.id));
+          const newTracks = tracks.filter((t) => !existingIds.has(t.id));
+          return {
+            searchResults: [...state.searchResults, ...newTracks],
+            nextPageToken: nextPageToken ?? null,
+          };
+        }),
 
       clearQueue: () =>
         set({ queue: [], currentIndex: -1, currentTrack: null, isPlaying: false }),
