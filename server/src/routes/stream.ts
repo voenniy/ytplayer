@@ -1,8 +1,127 @@
 import { Router } from "express";
-import { Readable } from "stream";
+import { PassThrough } from "stream";
 import { isValidVideoId, resolveAudioUrl, invalidateCache } from "../services/audio";
 
 const router = Router();
+
+// --- Constants ---
+const INITIAL_CHUNK = 2 * 1024 * 1024;     // 2MB — first chunk to browser
+const READ_AHEAD = 5 * 1024 * 1024;         // 5MB — minimum upstream fetch
+const MAX_BUFFER = 50 * 1024 * 1024;         // 50MB — RAM limit per stream
+const BUFFER_TTL = 60_000;                   // 60s — evict idle buffers
+const LOW_WATER = 1 * 1024 * 1024;           // 1MB — trigger proactive read-ahead
+const SWEEP_INTERVAL = 2 * 60_000;           // 2min — safety sweep
+
+// --- StreamBuffer ---
+class StreamBuffer {
+  videoId: string;
+  bufferStart = 0;
+  bufferEnd = 0;
+  chunks: Buffer[] = [];
+  totalBuffered = 0;
+  filling = false;
+  activeAbort: AbortController | null = null;
+  private timer: ReturnType<typeof setTimeout> | null = null;
+
+  // Upstream info needed for proactive read-ahead
+  audioUrl = "";
+  httpHeaders: Record<string, string> = {};
+  contentLength = 0;
+
+  constructor(videoId: string) {
+    this.videoId = videoId;
+    this.touch();
+  }
+
+  touch(): void {
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.destroy(), BUFFER_TTL);
+  }
+
+  covers(start: number, end: number): boolean {
+    return start >= this.bufferStart && end <= this.bufferEnd && this.totalBuffered > 0;
+  }
+
+  isContiguous(start: number): boolean {
+    return start >= this.bufferStart && start <= this.bufferEnd && this.totalBuffered > 0;
+  }
+
+  slice(start: number, end: number): Buffer {
+    const offset = start - this.bufferStart;
+    const length = end - start + 1;
+    const combined = Buffer.concat(this.chunks);
+    return combined.subarray(offset, offset + length);
+  }
+
+  append(chunk: Buffer): void {
+    this.chunks.push(chunk);
+    this.totalBuffered += chunk.length;
+    this.bufferEnd = this.bufferStart + this.totalBuffered - 1;
+
+    // Trim from front if over MAX_BUFFER
+    while (this.totalBuffered > MAX_BUFFER && this.chunks.length > 1) {
+      const removed = this.chunks.shift()!;
+      this.totalBuffered -= removed.length;
+      this.bufferStart += removed.length;
+    }
+  }
+
+  reset(newStart: number): void {
+    this.chunks = [];
+    this.totalBuffered = 0;
+    this.bufferStart = newStart;
+    this.bufferEnd = newStart;
+  }
+
+  abortFill(): void {
+    if (this.activeAbort) {
+      this.activeAbort.abort();
+      this.activeAbort = null;
+    }
+    this.filling = false;
+  }
+
+  destroy(): void {
+    this.abortFill();
+    if (this.timer) clearTimeout(this.timer);
+    this.chunks = [];
+    this.totalBuffered = 0;
+    buffers.delete(this.videoId);
+    console.log(`[BUFFER] Destroyed buffer for ${this.videoId}`);
+  }
+
+  /** Bytes remaining ahead from a given position */
+  remaining(from: number): number {
+    if (from > this.bufferEnd || from < this.bufferStart) return 0;
+    return this.bufferEnd - from + 1;
+  }
+}
+
+// --- Global buffer map ---
+const buffers = new Map<string, StreamBuffer>();
+
+function getOrCreateBuffer(videoId: string): StreamBuffer {
+  let buf = buffers.get(videoId);
+  if (!buf) {
+    buf = new StreamBuffer(videoId);
+    buffers.set(videoId, buf);
+  }
+  buf.touch();
+  return buf;
+}
+
+// Safety sweep — evict any leaked buffers
+setInterval(() => {
+  // TTL timers handle cleanup; this is a safety net
+  for (const [id, buf] of buffers) {
+    if (buf.totalBuffered === 0 && !buf.filling) {
+      buf.destroy();
+      console.log(`[BUFFER] Sweep cleaned empty buffer for ${id}`);
+    }
+  }
+}, SWEEP_INTERVAL);
+
+// --- Helpers ---
 
 function parseRange(header: string, total: number): { start: number; end: number } | null {
   const match = header.match(/bytes=(\d+)-(\d*)/);
@@ -13,6 +132,120 @@ function parseRange(header: string, total: number): { start: number; end: number
   return { start, end };
 }
 
+/**
+ * Read upstream body, pipe first `browserBytes` to PassThrough, rest into StreamBuffer.
+ * Returns the PassThrough stream to pipe to response.
+ */
+function splitUpstream(
+  upstreamBody: ReadableStream<Uint8Array>,
+  buf: StreamBuffer,
+  browserBytes: number,
+  upstreamStart: number,
+): PassThrough {
+  const pt = new PassThrough();
+  let sentToClient = 0;
+
+  buf.reset(upstreamStart);
+
+  const reader = (upstreamBody as any).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+
+  (async () => {
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = Buffer.from(value);
+        const remaining = browserBytes - sentToClient;
+
+        if (remaining > 0) {
+          if (chunk.length <= remaining) {
+            // Entire chunk goes to client
+            pt.write(chunk);
+            sentToClient += chunk.length;
+            // Also store in buffer for future range requests
+            buf.append(chunk);
+          } else {
+            // Split: part to client, rest to buffer
+            const clientPart = chunk.subarray(0, remaining);
+            const bufferPart = chunk.subarray(remaining);
+            pt.write(clientPart);
+            sentToClient += clientPart.length;
+            buf.append(chunk); // Store entire chunk for contiguity
+          }
+
+          if (sentToClient >= browserBytes) {
+            pt.end();
+          }
+        } else {
+          // Client already served — just buffer
+          buf.append(chunk);
+        }
+      }
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        console.error("[BUFFER] Upstream read error:", err);
+      }
+    } finally {
+      if (!pt.writableEnded) pt.end();
+      buf.filling = false;
+    }
+  })();
+
+  return pt;
+}
+
+/**
+ * Proactively fetch next READ_AHEAD bytes into buffer (background).
+ */
+function proactiveReadAhead(buf: StreamBuffer): void {
+  if (buf.filling) return;
+  if (buf.bufferEnd + 1 >= buf.contentLength) return;
+
+  const start = buf.bufferEnd + 1;
+  const end = Math.min(start + READ_AHEAD - 1, buf.contentLength - 1);
+
+  console.log(`[READ-AHEAD] ${buf.videoId} bytes=${start}-${end}`);
+
+  buf.filling = true;
+  const abort = new AbortController();
+  buf.activeAbort = abort;
+
+  fetch(buf.audioUrl, {
+    headers: { ...buf.httpHeaders, Range: `bytes=${start}-${end}` },
+    signal: abort.signal,
+  })
+    .then(async (upstream) => {
+      if (!upstream.body || (!upstream.ok && upstream.status !== 206)) {
+        buf.filling = false;
+        return;
+      }
+      const reader = (upstream.body as any).getReader() as ReadableStreamDefaultReader<Uint8Array>;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf.append(Buffer.from(value));
+        }
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("[READ-AHEAD] Error:", err);
+        }
+      } finally {
+        buf.filling = false;
+        buf.activeAbort = null;
+      }
+    })
+    .catch((err) => {
+      if (err.name !== "AbortError") {
+        console.error("[READ-AHEAD] Fetch error:", err);
+      }
+      buf.filling = false;
+      buf.activeAbort = null;
+    });
+}
+
+// --- Route handler ---
 router.get("/:videoId", async (req, res) => {
   const { videoId } = req.params;
 
@@ -30,18 +263,27 @@ router.get("/:videoId", async (req, res) => {
 
   let { audioUrl, contentLength, contentType, httpHeaders } = audioInfo;
 
-  const rangeHeader = req.headers.range;
+  // Update buffer with current upstream info
+  const buf = getOrCreateBuffer(videoId);
+  buf.audioUrl = audioUrl;
+  buf.httpHeaders = httpHeaders;
+  buf.contentLength = contentLength;
 
-  // Build upstream headers: yt-dlp's http_headers (User-Agent etc.) + Range
   function upstreamHeaders(rangeValue: string): Record<string, string> {
     return { ...httpHeaders, Range: rangeValue };
   }
 
-  // No Range header: respond with 206 for the first chunk so browser learns total size
+  const rangeHeader = req.headers.range;
+
+  // ---- No Range header: first request ----
   if (!rangeHeader) {
-    const end = Math.min(contentLength - 1, 524287);
+    const browserEnd = Math.min(contentLength - 1, INITIAL_CHUNK - 1);
+    const upstreamEnd = Math.min(contentLength - 1, READ_AHEAD - 1);
+
+    console.log(`[BUFFER MISS] ${videoId} initial bytes=0-${upstreamEnd} (serve 0-${browserEnd})`);
+
     const upstream = await fetch(audioUrl, {
-      headers: upstreamHeaders(`bytes=0-${end}`),
+      headers: upstreamHeaders(`bytes=0-${upstreamEnd}`),
     }).catch(() => null);
 
     if (!upstream || (!upstream.ok && upstream.status !== 206)) {
@@ -51,32 +293,69 @@ router.get("/:videoId", async (req, res) => {
     res.status(206);
     res.setHeader("Content-Type", contentType);
     res.setHeader("Accept-Ranges", "bytes");
-    res.setHeader("Content-Range", `bytes 0-${end}/${contentLength}`);
-    res.setHeader("Content-Length", end + 1);
+    res.setHeader("Content-Range", `bytes 0-${browserEnd}/${contentLength}`);
+    res.setHeader("Content-Length", browserEnd + 1);
 
     if (!upstream.body) {
       return res.end();
     }
 
-    const nodeStream = Readable.fromWeb(upstream.body as any);
-    nodeStream.pipe(res);
-    req.on("close", () => nodeStream.destroy());
+    buf.filling = true;
+    const pt = splitUpstream(upstream.body as any, buf, browserEnd + 1, 0);
+    pt.pipe(res);
+    req.on("close", () => {
+      pt.destroy();
+    });
     return;
   }
 
+  // ---- With Range header ----
   const range = parseRange(rangeHeader, contentLength);
   if (!range) {
     return res.status(416).json({ error: "Range not satisfiable" });
   }
 
   const { start, end } = range;
-  const MAX_ATTEMPTS = 2;
 
+  // --- Buffer HIT ---
+  if (buf.covers(start, end)) {
+    console.log(`[BUFFER HIT] ${videoId} bytes=${start}-${end}`);
+    buf.touch();
+
+    const data = buf.slice(start, end);
+    res.status(206);
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Content-Range", `bytes ${start}-${end}/${contentLength}`);
+    res.setHeader("Content-Length", data.length);
+    res.end(data);
+
+    // Trigger proactive read-ahead if buffer running low
+    if (buf.remaining(end + 1) < LOW_WATER) {
+      proactiveReadAhead(buf);
+    }
+    return;
+  }
+
+  // --- Buffer MISS: fetch from upstream ---
+  // If seeking (start outside buffer window), reset
+  if (!buf.isContiguous(start)) {
+    buf.abortFill();
+    buf.reset(start);
+  }
+
+  const upstreamStart = start;
+  const upstreamEnd = Math.min(upstreamStart + READ_AHEAD - 1, contentLength - 1);
+  const browserBytes = end - start + 1;
+
+  console.log(`[BUFFER MISS] ${videoId} bytes=${upstreamStart}-${upstreamEnd} (serve ${start}-${end})`);
+
+  const MAX_ATTEMPTS = 2;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     let upstream: Response;
     try {
       upstream = await fetch(audioUrl, {
-        headers: upstreamHeaders(`bytes=${start}-${end}`),
+        headers: upstreamHeaders(`bytes=${upstreamStart}-${upstreamEnd}`),
       });
     } catch (err) {
       console.error("Upstream fetch failed:", err);
@@ -91,6 +370,9 @@ router.get("/:videoId", async (req, res) => {
         contentLength = fresh.contentLength;
         contentType = fresh.contentType;
         httpHeaders = fresh.httpHeaders;
+        buf.audioUrl = audioUrl;
+        buf.httpHeaders = httpHeaders;
+        buf.contentLength = contentLength;
       } catch (err) {
         console.error("Failed to re-resolve audio URL:", err);
         return res.status(502).json({ error: "Failed to resolve audio" });
@@ -106,19 +388,18 @@ router.get("/:videoId", async (req, res) => {
     res.setHeader("Content-Type", contentType);
     res.setHeader("Accept-Ranges", "bytes");
     res.setHeader("Content-Range", `bytes ${start}-${end}/${contentLength}`);
-    res.setHeader("Content-Length", end - start + 1);
+    res.setHeader("Content-Length", browserBytes);
 
     if (!upstream.body) {
       return res.end();
     }
 
-    const nodeStream = Readable.fromWeb(upstream.body as any);
-    nodeStream.pipe(res);
-
+    buf.filling = true;
+    const pt = splitUpstream(upstream.body as any, buf, browserBytes, upstreamStart);
+    pt.pipe(res);
     req.on("close", () => {
-      nodeStream.destroy();
+      pt.destroy();
     });
-
     return;
   }
 
