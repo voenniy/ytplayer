@@ -5,14 +5,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlaylistsStore } from "@/stores/playlists";
-import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, MoreVertical, Volume2, Pause, ExternalLink } from "lucide-react";
+import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, Volume2, Pause, ExternalLink, FolderPlus } from "lucide-react";
 import { usePlayerStore } from "@/stores/player";
 
 interface TrackListProps {
@@ -48,7 +45,7 @@ const sortOptions: { field: SortField; label: string; icon: typeof Clock }[] = [
   { field: "likeCount", label: "Лайки", icon: ThumbsUp },
 ];
 
-function TrackPlaylistSubmenu({ track }: { track: Track }) {
+function TrackPlaylistMenu({ track }: { track: Track }) {
   const playlists = usePlaylistsStore((s) => s.playlists);
   const createPlaylist = usePlaylistsStore((s) => s.createPlaylist);
   const addTrack = usePlaylistsStore((s) => s.addTrack);
@@ -71,21 +68,18 @@ function TrackPlaylistSubmenu({ track }: { track: Track }) {
   };
 
   return (
-    <DropdownMenuSub>
-      <DropdownMenuSubTrigger>В плейлист</DropdownMenuSubTrigger>
-      <DropdownMenuSubContent>
-        {playlists.map((pl) => (
-          <DropdownMenuItem key={pl.id} onClick={() => handleAdd(pl.id)}>
-            {pl.name}
-          </DropdownMenuItem>
-        ))}
-        {playlists.length > 0 && <DropdownMenuSeparator />}
-        <DropdownMenuItem onClick={handleCreateAndAdd}>
-          <Plus className="h-4 w-4 mr-2 text-green-500" />
-          <span className="text-green-500">Создать новый</span>
+    <>
+      {playlists.map((pl) => (
+        <DropdownMenuItem key={pl.id} onClick={() => handleAdd(pl.id)}>
+          {pl.name}
         </DropdownMenuItem>
-      </DropdownMenuSubContent>
-    </DropdownMenuSub>
+      ))}
+      {playlists.length > 0 && <DropdownMenuSeparator />}
+      <DropdownMenuItem onClick={handleCreateAndAdd}>
+        <Plus className="h-4 w-4 mr-2 text-green-500" />
+        <span className="text-green-500">Создать новый</span>
+      </DropdownMenuItem>
+    </>
   );
 }
 
@@ -181,6 +175,16 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               </div>
             </div>
             <span className="text-xs text-muted-foreground">{formatDuration(track.duration)}</span>
+            <a
+              href={`https://www.youtube.com/watch?v=${track.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="opacity-0 group-hover:opacity-100 shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+              onClick={(e) => e.stopPropagation()}
+              title="YouTube"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
             <Button
               variant="ghost"
               size="icon"
@@ -197,19 +201,13 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                   size="icon"
                   className="opacity-0 group-hover:opacity-100 shrink-0"
                   onClick={(e) => e.stopPropagation()}
+                  title="В плейлист"
                 >
-                  <MoreVertical className="h-4 w-4" />
+                  <FolderPlus className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <TrackPlaylistSubmenu track={track} />
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <a href={`https://www.youtube.com/watch?v=${track.id}`} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    YouTube
-                  </a>
-                </DropdownMenuItem>
+                <TrackPlaylistMenu track={track} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
