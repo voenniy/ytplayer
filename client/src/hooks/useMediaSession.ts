@@ -29,7 +29,7 @@ export function useMediaSession({
       title,
       artist: artist || "",
       ...(artwork
-        ? { artwork: [{ src: artwork, sizes: "512x512", type: "image/jpeg" }] }
+        ? { artwork: [{ src: artwork.startsWith("/") ? `${location.origin}${artwork}` : artwork, sizes: "512x512", type: "image/jpeg" }] }
         : {}),
     });
   }, [title, artist, artwork]);

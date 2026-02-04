@@ -4,6 +4,13 @@ import type { AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
+const YTIMG_RE = /^https?:\/\/i\.ytimg\.com\/vi\/([a-zA-Z0-9_-]{11})\//;
+
+function normalizeThumb(thumbnail: string): string {
+  const match = thumbnail.match(YTIMG_RE);
+  return match ? `/api/thumb/${match[1]}` : thumbnail;
+}
+
 function verifyPlaylistOwner(playlistId: string, userId: number): boolean {
   const db = getDb();
   const playlist = db.prepare("SELECT id FROM playlists WHERE id = ? AND user_id = ?").get(playlistId, userId);
@@ -52,7 +59,7 @@ router.get("/:id/tracks", (req, res) => {
     id: row.video_id,
     title: row.title,
     artist: row.artist,
-    thumbnail: row.thumbnail,
+    thumbnail: normalizeThumb(row.thumbnail),
     duration: row.duration,
     viewCount: row.view_count,
     likeCount: row.like_count,
@@ -83,7 +90,7 @@ router.post("/:id/tracks", (req, res) => {
     .prepare(
       "INSERT INTO playlist_tracks (playlist_id, video_id, title, artist, thumbnail, duration, view_count, like_count, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     )
-    .run(req.params.id, video_id, title, artist || "", thumbnail || "", duration || 0, view_count || 0, like_count || 0, position);
+    .run(req.params.id, video_id, title, artist || "", normalizeThumb(thumbnail || ""), duration || 0, view_count || 0, like_count || 0, position);
 
   res.status(201).json({ id: result.lastInsertRowid });
 });
