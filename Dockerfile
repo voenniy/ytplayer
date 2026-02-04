@@ -1,10 +1,11 @@
 # --- Stage 1: Build client ---
 FROM node:22-alpine AS client-build
+ARG COMMIT_HASH=unknown
 WORKDIR /app/client
 COPY client/package.json client/package-lock.json ./
 RUN npm ci
 COPY client/ ./
-RUN npx vite build
+RUN VITE_COMMIT_HASH=$COMMIT_HASH npx vite build
 
 # --- Stage 2: Build server ---
 FROM node:22-alpine AS server-build

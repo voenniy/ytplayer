@@ -32,6 +32,8 @@ jobs:
           tags: |
             ghcr.io/voenniy/ytplayer:latest
             ghcr.io/voenniy/ytplayer:${{ github.sha }}
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

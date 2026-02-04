@@ -5,7 +5,10 @@ import react from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
 import { VitePWA } from "vite-plugin-pwa"
 
-const commitHash = execSync("git rev-parse --short HEAD").toString().trim()
+let commitHash = "dev"
+try { commitHash = execSync("git rev-parse --short HEAD").toString().trim() } catch {
+  commitHash = (process.env.VITE_COMMIT_HASH || "dev").slice(0, 7)
+}
 
 export default defineConfig({
   define: {
