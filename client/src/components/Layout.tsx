@@ -15,7 +15,10 @@ export function Layout({ children, desktopPlayer, mobileBottom }: LayoutProps) {
   return (
     <div className="h-screen bg-background text-foreground flex flex-col">
       <header className="border-b px-4 py-3 shrink-0 flex items-center justify-between">
-        <h1 className="text-xl font-bold">MusicPlay</h1>
+        <div className="flex items-baseline gap-2">
+          <h1 className="text-xl font-bold">MusicPlay</h1>
+          <span className="text-[10px] text-muted-foreground">{__APP_VERSION__}</span>
+        </div>
         <button onClick={logout} className="text-muted-foreground hover:text-foreground" title="Выйти">
           <LogOut className="h-5 w-5" />
         </button>
