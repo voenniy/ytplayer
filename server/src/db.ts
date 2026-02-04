@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 
 let db: Database.Database;
 
-export function initDb(path: string = "./musicplay.db"): void {
+export function initDb(path: string = process.env.DB_PATH || "./musicplay.db"): void {
   db = new Database(path);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");

@@ -1,0 +1,31 @@
+services:
+  app:
+    image: ghcr.io/voenniy/ytplayer:latest
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - db-data:/app/data
+    networks:
+      - web
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - web
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  web:

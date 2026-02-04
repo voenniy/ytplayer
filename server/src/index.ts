@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
 import searchRouter from "./routes/search";
@@ -22,6 +23,13 @@ app.use("/api/playlists", playlistsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+// Serve client static files in production
+const publicDir = path.join(__dirname, "../public");
+app.use(express.static(publicDir));
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 app.listen(PORT, () => {
