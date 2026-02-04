@@ -144,16 +144,16 @@ export const usePlayerStore = create<PlayerState>()(
         nextPageToken: state.nextPageToken,
       }),
       migrate: (persisted) => persisted as any,
-      onRehydrateStorage: () => {
-        return (state) => {
-          if (!state) return;
-          // Recover currentTrack from queue if lost during migration
-          if (!state.currentTrack && state.queue.length > 0) {
-            const idx = Math.max(0, state.currentIndex);
-            const track = state.queue[idx] ?? state.queue[0];
-            usePlayerStore.setState({ currentTrack: track, currentIndex: idx });
-          }
-        };
+      merge: (persisted, current) => {
+        const merged = { ...current, ...(persisted as Record<string, unknown>) };
+        // Recover currentTrack from queue if lost during migration
+        const state = merged as typeof current;
+        if (!state.currentTrack && state.queue.length > 0) {
+          const idx = Math.max(0, state.currentIndex);
+          state.currentTrack = state.queue[idx] ?? state.queue[0];
+          state.currentIndex = idx;
+        }
+        return state;
       },
     },
   ),
