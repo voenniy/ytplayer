@@ -10,7 +10,7 @@ router.get("/state", (req: AuthRequest, res) => {
   const state = db.prepare("SELECT * FROM player_state WHERE user_id = ?").get(req.userId) as any;
 
   if (!state) {
-    res.json({ queue: [], currentIndex: 0, position: 0, repeatMode: "off" });
+    res.json({ queue: [], currentIndex: 0, position: 0, repeatMode: "off", currentTrack: null });
     return;
   }
 
@@ -19,23 +19,25 @@ router.get("/state", (req: AuthRequest, res) => {
     currentIndex: state.current_index,
     position: state.position,
     repeatMode: state.repeat_mode,
+    currentTrack: state.current_track ? JSON.parse(state.current_track) : null,
     updatedAt: state.updated_at,
   });
 });
 
 // PUT /api/player/state
 router.put("/state", (req: AuthRequest, res) => {
-  const { queue, currentIndex, position, repeatMode } = req.body;
+  const { queue, currentIndex, position, repeatMode, currentTrack } = req.body;
   const db = getDb();
 
   db.prepare(`
-    INSERT INTO player_state (user_id, queue, current_index, position, repeat_mode, updated_at)
-    VALUES (?, ?, ?, ?, ?, datetime('now'))
+    INSERT INTO player_state (user_id, queue, current_index, position, repeat_mode, current_track, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(user_id) DO UPDATE SET
       queue = excluded.queue,
       current_index = excluded.current_index,
       position = excluded.position,
       repeat_mode = excluded.repeat_mode,
+      current_track = excluded.current_track,
       updated_at = excluded.updated_at
   `).run(
     req.userId,
@@ -43,6 +45,7 @@ router.put("/state", (req: AuthRequest, res) => {
     currentIndex ?? 0,
     position ?? 0,
     repeatMode || "off",
+    currentTrack ? JSON.stringify(currentTrack) : null,
   );
 
   res.json({ ok: true });

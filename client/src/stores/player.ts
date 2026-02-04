@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type { Track } from "@/lib/api";
 
 interface PlayerState {
@@ -27,7 +26,6 @@ interface PlayerState {
 }
 
 export const usePlayerStore = create<PlayerState>()(
-  persist(
     (set, get) => ({
       currentTrack: null,
       queue: [],
@@ -132,29 +130,4 @@ export const usePlayerStore = create<PlayerState>()(
           return { queue: [...before, ...after] };
         }),
     }),
-    {
-      name: "musicplay-player",
-      version: 1,
-      partialize: (state) => ({
-        currentTrack: state.currentTrack,
-        queue: state.queue,
-        currentIndex: state.currentIndex,
-        repeatMode: state.repeatMode,
-        searchResults: state.searchResults,
-        nextPageToken: state.nextPageToken,
-      }),
-      migrate: (persisted) => persisted as any,
-      merge: (persisted, current) => {
-        const merged = { ...current, ...(persisted as Record<string, unknown>) };
-        // Recover currentTrack from queue if lost during migration
-        const state = merged as typeof current;
-        if (!state.currentTrack && state.queue.length > 0) {
-          const idx = Math.max(0, state.currentIndex);
-          state.currentTrack = state.queue[idx] ?? state.queue[0];
-          state.currentIndex = idx;
-        }
-        return state;
-      },
-    },
-  ),
 );

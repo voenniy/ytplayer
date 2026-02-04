@@ -7,6 +7,7 @@ export interface PlayerStateData {
   currentIndex: number;
   position: number;
   repeatMode: "off" | "one";
+  currentTrack: Track | null;
   updatedAt?: string;
 }
 

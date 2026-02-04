@@ -8,16 +8,18 @@ export function usePlayerSync() {
 
   // Load state from server on mount
   useEffect(() => {
+    // Clean up legacy localStorage persistence (now server-only)
+    localStorage.removeItem("musicplay-player");
+
     fetchPlayerState()
       .then((state) => {
-        if (state.queue.length > 0) {
+        if (state.queue.length > 0 || state.currentTrack) {
           usePlayerStore.setState({
             queue: state.queue,
             currentIndex: state.currentIndex,
-            currentTrack: state.queue[state.currentIndex] || null,
+            currentTrack: state.currentTrack ?? state.queue[state.currentIndex] ?? null,
             repeatMode: state.repeatMode,
           });
-          // Position will be restored by App.tsx via localStorage
           localStorage.setItem("musicplay-position", String(state.position));
         }
       })
@@ -28,11 +30,11 @@ export function usePlayerSync() {
     if (syncingRef.current) return;
     syncingRef.current = true;
 
-    const { queue, currentIndex, repeatMode } = usePlayerStore.getState();
+    const { queue, currentIndex, repeatMode, currentTrack } = usePlayerStore.getState();
     const posStr = localStorage.getItem("musicplay-position");
     const position = posStr ? parseFloat(posStr) : 0;
 
-    savePlayerState({ queue, currentIndex, position, repeatMode })
+    savePlayerState({ queue, currentIndex, position, repeatMode, currentTrack })
       .catch((err) => console.error("Failed to sync player state:", err))
       .finally(() => {
         syncingRef.current = false;

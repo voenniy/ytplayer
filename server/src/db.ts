@@ -55,6 +55,13 @@ export function initDb(path: string = process.env.DB_PATH || "./musicplay.db"): 
     db.exec("ALTER TABLE playlist_tracks ADD COLUMN like_count INTEGER DEFAULT 0");
   }
 
+  // Миграция: добавить current_track в player_state
+  const psCols = db.prepare("PRAGMA table_info(player_state)").all() as any[];
+  const psColNames = new Set(psCols.map((c: any) => c.name));
+  if (!psColNames.has("current_track")) {
+    db.exec("ALTER TABLE player_state ADD COLUMN current_track TEXT");
+  }
+
   // Миграция: добавить user_id в playlists
   const playlistCols = db.prepare("PRAGMA table_info(playlists)").all() as any[];
   const playlistColNames = new Set(playlistCols.map((c: any) => c.name));
