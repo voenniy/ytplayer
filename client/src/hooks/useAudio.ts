@@ -6,11 +6,13 @@ interface UseAudioReturn {
   currentTime: number;
   duration: number;
   volume: number;
+  load: (videoId: string) => void;
   play: (videoId: string) => void;
   pause: () => void;
   resume: () => void;
   seek: (time: number) => void;
   setVolume: (vol: number) => void;
+  restorePosition: (time: number) => void;
 }
 
 // Single Audio element created once, outside React lifecycle
@@ -20,6 +22,11 @@ function getAudio(): HTMLAudioElement {
   return globalAudio;
 }
 
+function loadSavedVolume(): number {
+  const saved = localStorage.getItem("musicplay-volume");
+  return saved ? parseFloat(saved) : 1;
+}
+
 export function useAudio(onEnded?: () => void): UseAudioReturn {
   const onEndedRef = useRef(onEnded);
   onEndedRef.current = onEnded;
@@ -27,13 +34,31 @@ export function useAudio(onEnded?: () => void): UseAudioReturn {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolumeState] = useState(1);
+  const [volume, setVolumeState] = useState(loadSavedVolume);
+  const [seekingTime, setSeekingTime] = useState<number | null>(null);
+  const lastSaveRef = useRef(0);
+  const pendingRestoreRef = useRef<number | null>(null);
 
   useEffect(() => {
     const audio = getAudio();
+    audio.volume = volume;
 
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
-    const onLoadedMetadata = () => setDuration(audio.duration);
+    const onTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+      const now = Date.now();
+      if (now - lastSaveRef.current > 2000) {
+        localStorage.setItem("musicplay-position", String(audio.currentTime));
+        lastSaveRef.current = now;
+      }
+    };
+    const onLoadedMetadata = () => {
+      setDuration(audio.duration);
+      if (pendingRestoreRef.current !== null) {
+        audio.currentTime = pendingRestoreRef.current;
+        setCurrentTime(pendingRestoreRef.current);
+        pendingRestoreRef.current = null;
+      }
+    };
     const onEndedHandler = () => {
       setIsPlaying(false);
       onEndedRef.current?.();
@@ -41,18 +66,26 @@ export function useAudio(onEnded?: () => void): UseAudioReturn {
     const onError = () => {
       console.error("Audio error:", audio.error?.message);
     };
+    const onSeeked = () => setSeekingTime(null);
 
     audio.addEventListener("timeupdate", onTimeUpdate);
     audio.addEventListener("loadedmetadata", onLoadedMetadata);
     audio.addEventListener("ended", onEndedHandler);
     audio.addEventListener("error", onError);
+    audio.addEventListener("seeked", onSeeked);
 
     return () => {
       audio.removeEventListener("timeupdate", onTimeUpdate);
       audio.removeEventListener("loadedmetadata", onLoadedMetadata);
       audio.removeEventListener("ended", onEndedHandler);
       audio.removeEventListener("error", onError);
+      audio.removeEventListener("seeked", onSeeked);
     };
+  }, []);
+
+  const load = useCallback((videoId: string) => {
+    const audio = getAudio();
+    audio.src = getStreamUrl(videoId);
   }, []);
 
   const play = useCallback((videoId: string) => {
@@ -78,13 +111,36 @@ export function useAudio(onEnded?: () => void): UseAudioReturn {
   }, []);
 
   const seek = useCallback((time: number) => {
+    setSeekingTime(time);
     getAudio().currentTime = time;
   }, []);
 
   const setVolume = useCallback((vol: number) => {
     getAudio().volume = vol;
     setVolumeState(vol);
+    localStorage.setItem("musicplay-volume", String(vol));
   }, []);
 
-  return { isPlaying, currentTime, duration, volume, play, pause, resume, seek, setVolume };
+  const restorePosition = useCallback((time: number) => {
+    const audio = getAudio();
+    if (audio.readyState >= 1) {
+      audio.currentTime = time;
+    } else {
+      pendingRestoreRef.current = time;
+    }
+  }, []);
+
+  return {
+    isPlaying,
+    currentTime: seekingTime ?? currentTime,
+    duration,
+    volume,
+    load,
+    play,
+    pause,
+    resume,
+    seek,
+    setVolume,
+    restorePosition,
+  };
 }

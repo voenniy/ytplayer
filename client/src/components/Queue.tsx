@@ -1,14 +1,16 @@
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Shuffle, Trash2 } from "lucide-react";
+import { X, Shuffle, Trash2, Volume2, Pause } from "lucide-react";
 
 export function Queue() {
   const queue = usePlayerStore((s) => s.queue);
+  const currentIndex = usePlayerStore((s) => s.currentIndex);
+  const isPlaying = usePlayerStore((s) => s.isPlaying);
   const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
   const clearQueue = usePlayerStore((s) => s.clearQueue);
   const shuffle = usePlayerStore((s) => s.shuffle);
-  const play = usePlayerStore((s) => s.play);
+  const playFromQueue = usePlayerStore((s) => s.playFromQueue);
 
   return (
     <aside className="w-full md:w-64 md:border-l flex flex-col">
@@ -28,30 +30,47 @@ export function Queue() {
           {queue.length === 0 && (
             <p className="text-xs text-muted-foreground p-2">Очередь пуста</p>
           )}
-          {queue.map((track, index) => (
-            <div
-              key={`${track.id}-${index}`}
-              className="flex items-center gap-2 p-1.5 rounded hover:bg-muted cursor-pointer group"
-              onClick={() => play(track)}
-            >
-              <img src={track.thumbnail} alt="" className="w-8 h-8 rounded object-cover" />
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium truncate">{track.title}</p>
-                <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 opacity-0 group-hover:opacity-100"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeFromQueue(index);
-                }}
+          {queue.map((track, index) => {
+            const isCurrent = index === currentIndex;
+            return (
+              <div
+                key={`${track.id}-${index}`}
+                className={`flex items-center gap-2 p-1.5 rounded cursor-pointer group ${
+                  isCurrent
+                    ? "bg-accent border-l-2 border-primary"
+                    : "hover:bg-muted"
+                }`}
+                onClick={() => playFromQueue(index)}
               >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
+                {isCurrent ? (
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-primary/10">
+                    {isPlaying ? (
+                      <Volume2 className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Pause className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                ) : (
+                  <img src={track.thumbnail} alt="" className="w-8 h-8 rounded object-cover" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-medium truncate ${isCurrent ? "text-primary" : ""}`}>{track.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFromQueue(index);
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            );
+          })}
         </div>
       </ScrollArea>
     </aside>

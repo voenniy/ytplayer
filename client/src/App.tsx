@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { SearchBar } from "@/components/SearchBar";
 import { TrackList } from "@/components/TrackList";
@@ -26,8 +26,12 @@ function MobilePlaylistsView() {
 function App() {
   const [mobileTab, setMobileTab] = useState<MobileTab>("search");
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
-  const [lastQuery, setLastQuery] = useState("");
+  const [lastQuery, setLastQuery] = useState(
+    () => new URLSearchParams(window.location.search).get("q") || "",
+  );
   const [isSearching, setIsSearching] = useState(false);
+  const isFirstMountRef = useRef(true);
+  const prevTrackIdRef = useRef<string | undefined>(undefined);
 
   const setSearchResults = usePlayerStore((s) => s.setSearchResults);
   const appendSearchResults = usePlayerStore((s) => s.appendSearchResults);
@@ -40,15 +44,32 @@ function App() {
   const storePause = usePlayerStore((s) => s.pause);
   const storeResume = usePlayerStore((s) => s.resume);
   const playNext = usePlayerStore((s) => s.playNext);
+  const playPrev = usePlayerStore((s) => s.playPrev);
 
   // Single audio instance shared across desktop and mobile
   const audio = useAudio(playNext);
 
-  // Play track when currentTrack changes
+  // Play track when currentTrack changes; on hydration just load without playing
   useEffect(() => {
-    if (currentTrack) {
-      audio.play(currentTrack.id);
+    if (!currentTrack) return;
+
+    // On hydration: load audio + restore position, don't play
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      prevTrackIdRef.current = currentTrack.id;
+      audio.load(currentTrack.id);
+      const pos = localStorage.getItem("musicplay-position");
+      if (pos) {
+        audio.restorePosition(parseFloat(pos));
+      }
+      return;
     }
+
+    // Strict mode double-fire guard: skip if same track ID
+    if (currentTrack.id === prevTrackIdRef.current) return;
+    prevTrackIdRef.current = currentTrack.id;
+
+    audio.play(currentTrack.id);
   }, [currentTrack?.id]);
 
   const handlePlayPause = useCallback(() => {
@@ -84,6 +105,9 @@ function App() {
 
   const handleSearch = async (query: string) => {
     setLastQuery(query);
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", query);
+    window.history.replaceState({}, "", url.toString());
     setIsSearching(true);
     try {
       const result = await searchTracks(query);
@@ -115,7 +139,7 @@ function App() {
         return (
           <>
             <div className="p-4 flex justify-center">
-              <SearchBar onSearch={handleSearch} />
+              <SearchBar onSearch={handleSearch} initialQuery={lastQuery} />
             </div>
             <div className="flex-1 overflow-auto p-4">
               <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
@@ -170,7 +194,7 @@ function App() {
             searchContent={
               <>
                 <div className="p-4 flex justify-center">
-                  <SearchBar onSearch={handleSearch} />
+                  <SearchBar onSearch={handleSearch} initialQuery={lastQuery} />
                 </div>
                 <div className="flex-1 overflow-auto p-4">
                   <TrackList tracks={searchResults} onPlay={play} onAddToQueue={addToQueue} onLoadMore={handleLoadMore} hasMore={!!nextPageToken} isLoading={isSearching} />
@@ -194,7 +218,7 @@ function App() {
         duration={audio.duration}
         onPlayPause={handlePlayPause}
         onNext={playNext}
-        onPrev={() => {}} // No previous track functionality yet
+        onPrev={playPrev}
         onSeek={audio.seek}
       />
     </>

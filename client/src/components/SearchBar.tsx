@@ -8,15 +8,17 @@ import { fetchSuggestions } from "@/lib/api";
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading?: boolean;
+  initialQuery?: string;
 }
 
-export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
-  const [query, setQuery] = useState("");
+export function SearchBar({ onSearch, isLoading, initialQuery }: SearchBarProps) {
+  const [query, setQuery] = useState(initialQuery || "");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const inputRef = useRef<HTMLInputElement>(null);
+  const userTypedRef = useRef(false);
 
   const loadSuggestions = useCallback(async (q: string) => {
     if (q.trim().length < 2) {
@@ -26,11 +28,14 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
     }
     const results = await fetchSuggestions(q);
     setSuggestions(results);
-    setOpen(results.length > 0);
+    if (inputRef.current === document.activeElement) {
+      setOpen(results.length > 0);
+    }
     setActiveIndex(-1);
   }, []);
 
   useEffect(() => {
+    if (!userTypedRef.current) return;
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => loadSuggestions(query), 300);
     return () => clearTimeout(debounceRef.current);
@@ -63,6 +68,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
       const selected = suggestions[activeIndex];
       setQuery(selected);
       doSearch(selected);
+      inputRef.current?.blur();
     } else if (e.key === "Escape") {
       setOpen(false);
     }
@@ -89,7 +95,10 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
           <Input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              userTypedRef.current = true;
+              setQuery(e.target.value);
+            }}
             onKeyDown={handleKeyDown}
             onFocus={() => suggestions.length > 0 && setOpen(true)}
             placeholder="Вставьте ссылку на YouTube или введите поиск..."
@@ -117,6 +126,7 @@ export function SearchBar({ onSearch, isLoading }: SearchBarProps) {
               e.preventDefault();
               setQuery(s);
               doSearch(s);
+              inputRef.current?.blur();
             }}
             onMouseEnter={() => setActiveIndex(i)}
           >
