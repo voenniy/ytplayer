@@ -11,6 +11,7 @@ import {
 import { usePlaylistsStore } from "@/stores/playlists";
 import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, Volume2, Pause, ExternalLink, FolderPlus } from "lucide-react";
 import { usePlayerStore } from "@/stores/player";
+import { handleImgError } from "@/lib/img-fallback";
 
 interface TrackListProps {
   tracks: Track[];
@@ -154,7 +155,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                 )}
               </div>
             ) : (
-              <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded object-cover" />
+              <img src={track.thumbnail} alt={track.title} className="w-12 h-12 rounded object-cover" onError={handleImgError} />
             )}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{track.title}</p>

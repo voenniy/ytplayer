@@ -2,6 +2,7 @@ import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Shuffle, Trash2, Volume2, Pause, ExternalLink } from "lucide-react";
+import { handleImgError } from "@/lib/img-fallback";
 
 export function Queue() {
   const queue = usePlayerStore((s) => s.queue);
@@ -51,7 +52,7 @@ export function Queue() {
                     )}
                   </div>
                 ) : (
-                  <img src={track.thumbnail} alt="" className="w-8 h-8 rounded object-cover" />
+                  <img src={track.thumbnail} alt="" className="w-8 h-8 rounded object-cover" onError={handleImgError} />
                 )}
                 <div className="flex-1 min-w-0">
                   <p className={`text-xs font-medium truncate ${isCurrent ? "text-primary" : ""}`}>{track.title}</p>

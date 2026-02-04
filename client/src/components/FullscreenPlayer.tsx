@@ -7,6 +7,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Play, Pause, SkipBack, SkipForward, ChevronDown, Repeat1 } from "lucide-react";
+import { handleImgError } from "@/lib/img-fallback";
 import { VisuallyHidden } from "radix-ui";
 const VisuallyHiddenRoot = VisuallyHidden.Root;
 
@@ -76,6 +77,7 @@ export function FullscreenPlayer({
               src={currentTrack.thumbnail}
               alt={currentTrack.title}
               className="w-72 h-72 rounded-lg object-cover shadow-2xl"
+              onError={handleImgError}
             />
           </div>
 

@@ -8,6 +8,7 @@ import streamRouter from "./routes/stream";
 import playlistsRouter from "./routes/playlists";
 import authRouter from "./routes/auth";
 import playerStateRouter from "./routes/player-state";
+import thumbRouter from "./routes/thumb";
 import { initDb } from "./db";
 import { requireAuth } from "./middleware/auth";
 
@@ -30,6 +31,7 @@ app.use("/api/search", requireAuth, searchRouter);
 app.use("/api/stream", requireAuth, streamRouter);
 app.use("/api/playlists", requireAuth, playlistsRouter);
 app.use("/api/player", requireAuth, playerStateRouter);
+app.use("/api/thumb", requireAuth, thumbRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });

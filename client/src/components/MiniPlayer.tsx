@@ -1,6 +1,7 @@
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, SkipForward } from "lucide-react";
+import { handleImgError } from "@/lib/img-fallback";
 
 interface MiniPlayerProps {
   currentTime: number;
@@ -42,6 +43,7 @@ export function MiniPlayer({
           src={currentTrack.thumbnail}
           alt={currentTrack.title}
           className="w-10 h-10 rounded object-cover"
+          onError={handleImgError}
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{currentTrack.title}</p>

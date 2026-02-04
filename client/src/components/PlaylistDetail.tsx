@@ -3,6 +3,7 @@ import { usePlaylistsStore } from "@/stores/playlists";
 import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play, GripVertical, X, Volume2, Pause, ExternalLink } from "lucide-react";
+import { handleImgError } from "@/lib/img-fallback";
 import type { Track } from "@/lib/api";
 
 interface PlaylistDetailProps {
@@ -105,7 +106,7 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
                 )}
               </div>
             ) : (
-              <img src={track.thumbnail} alt="" className="w-10 h-10 rounded object-cover shrink-0" />
+              <img src={track.thumbnail} alt="" className="w-10 h-10 rounded object-cover shrink-0" onError={handleImgError} />
             )}
             <div className="flex-1 min-w-0 cursor-pointer" onClick={() => play(track)}>
               <p className="text-sm font-medium truncate">{track.title}</p>

@@ -2,6 +2,7 @@ import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipForward, Volume2, Repeat1 } from "lucide-react";
+import { handleImgError } from "@/lib/img-fallback";
 
 function formatTime(sec: number): string {
   if (!sec || !isFinite(sec)) return "0:00";
@@ -41,7 +42,7 @@ export function Player({
   return (
     <div data-testid="player" className="border-t bg-card px-4 py-3">
       <div className="flex items-center gap-4 max-w-4xl mx-auto">
-        <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-12 h-12 rounded" />
+        <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-12 h-12 rounded" onError={handleImgError} />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{currentTrack.title}</p>
           <p className="text-xs text-muted-foreground truncate">{currentTrack.artist}</p>

@@ -34,7 +34,7 @@ export default defineConfig({
         navigateFallback: "/index.html",
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/i\.ytimg\.com\/.*/i,
+            urlPattern: /\/api\/thumb\/.*/,
             handler: "CacheFirst",
             options: {
               cacheName: "yt-thumbnails",
