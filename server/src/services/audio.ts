@@ -7,6 +7,7 @@ export interface AudioInfo {
   audioUrl: string;
   contentLength: number;
   contentType: string;
+  httpHeaders: Record<string, string>;
 }
 
 interface CacheEntry extends AudioInfo {
@@ -34,7 +35,7 @@ export function invalidateCache(videoId: string): void {
   cache.delete(videoId);
 }
 
-function pickBestAudioFormat(formats: any[]): { url: string; contentLength: number; mimeType: string } | null {
+function pickBestAudioFormat(formats: any[]): { url: string; contentLength: number; mimeType: string; httpHeaders: Record<string, string> } | null {
   const audioOnly = formats.filter((f) => f.vcodec === "none" && f.acodec !== "none" && f.url);
   if (audioOnly.length === 0) return null;
   audioOnly.sort((a, b) => (b.abr || 0) - (a.abr || 0));
@@ -47,13 +48,18 @@ function pickBestAudioFormat(formats: any[]): { url: string; contentLength: numb
     url: best.url,
     contentLength: best.content_length || best.filesize || best.filesize_approx || 0,
     mimeType,
+    httpHeaders: best.http_headers || {},
   };
 }
 
 function fetchYtdlpJson(videoId: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const url = buildStreamUrl(videoId);
-    const proc = spawn("yt-dlp", ["--dump-json", "--no-warnings", "--no-playlist", url]);
+    const proc = spawn("yt-dlp", [
+      "--dump-json", "--no-warnings", "--no-playlist",
+      "--extractor-args", "youtube:player_client=android_vr",
+      url,
+    ]);
 
     let stdout = "";
     proc.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
@@ -76,7 +82,7 @@ export async function resolveAudioUrl(videoId: string): Promise<AudioInfo> {
 
   const cached = cache.get(videoId);
   if (cached && cached.expiresAt > Date.now()) {
-    return { audioUrl: cached.audioUrl, contentLength: cached.contentLength, contentType: cached.contentType };
+    return { audioUrl: cached.audioUrl, contentLength: cached.contentLength, contentType: cached.contentType, httpHeaders: cached.httpHeaders };
   }
 
   cache.delete(videoId);
@@ -89,10 +95,11 @@ export async function resolveAudioUrl(videoId: string): Promise<AudioInfo> {
     audioUrl: best.url,
     contentLength: best.contentLength,
     contentType: best.mimeType,
+    httpHeaders: best.httpHeaders,
     expiresAt: Date.now() + CACHE_TTL,
   };
 
   cache.set(videoId, entry);
 
-  return { audioUrl: entry.audioUrl, contentLength: entry.contentLength, contentType: entry.contentType };
+  return { audioUrl: entry.audioUrl, contentLength: entry.contentLength, contentType: entry.contentType, httpHeaders: entry.httpHeaders };
 }
