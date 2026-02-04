@@ -13,54 +13,76 @@ interface UseAudioReturn {
   setVolume: (vol: number) => void;
 }
 
+// Single Audio element created once, outside React lifecycle
+let globalAudio: HTMLAudioElement | null = null;
+function getAudio(): HTMLAudioElement {
+  if (!globalAudio) globalAudio = new Audio();
+  return globalAudio;
+}
+
 export function useAudio(onEnded?: () => void): UseAudioReturn {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const onEndedRef = useRef(onEnded);
+  onEndedRef.current = onEnded;
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(1);
 
   useEffect(() => {
-    const audio = new Audio();
-    audioRef.current = audio;
+    const audio = getAudio();
 
-    audio.addEventListener("timeupdate", () => setCurrentTime(audio.currentTime));
-    audio.addEventListener("loadedmetadata", () => setDuration(audio.duration));
-    audio.addEventListener("ended", () => {
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime);
+    const onLoadedMetadata = () => setDuration(audio.duration);
+    const onEndedHandler = () => {
       setIsPlaying(false);
-      onEnded?.();
-    });
+      onEndedRef.current?.();
+    };
+    const onError = () => {
+      console.error("Audio error:", audio.error?.message);
+    };
+
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("loadedmetadata", onLoadedMetadata);
+    audio.addEventListener("ended", onEndedHandler);
+    audio.addEventListener("error", onError);
 
     return () => {
-      audio.pause();
-      audio.src = "";
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("loadedmetadata", onLoadedMetadata);
+      audio.removeEventListener("ended", onEndedHandler);
+      audio.removeEventListener("error", onError);
     };
-  }, [onEnded]);
+  }, []);
 
   const play = useCallback((videoId: string) => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = getAudio();
     audio.src = getStreamUrl(videoId);
-    audio.play();
+    audio.play().catch((err) => {
+      // Ignore AbortError from rapid play/pause
+      if (err.name !== "AbortError") console.error("Play failed:", err);
+    });
     setIsPlaying(true);
   }, []);
 
   const pause = useCallback(() => {
-    audioRef.current?.pause();
+    getAudio().pause();
     setIsPlaying(false);
   }, []);
 
   const resume = useCallback(() => {
-    audioRef.current?.play();
+    getAudio().play().catch((err) => {
+      if (err.name !== "AbortError") console.error("Resume failed:", err);
+    });
     setIsPlaying(true);
   }, []);
 
   const seek = useCallback((time: number) => {
-    if (audioRef.current) audioRef.current.currentTime = time;
+    getAudio().currentTime = time;
   }, []);
 
   const setVolume = useCallback((vol: number) => {
-    if (audioRef.current) audioRef.current.volume = vol;
+    getAudio().volume = vol;
     setVolumeState(vol);
   }, []);
 
