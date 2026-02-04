@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { usePlayerStore } from "@/stores/player";
+import { usePlaylistsStore } from "@/stores/playlists";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,7 +8,14 @@ import {
   DrawerContent,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Play, Pause, SkipBack, SkipForward, ChevronDown, Repeat1 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Play, Pause, SkipBack, SkipForward, ChevronDown, Repeat1, ListPlus, ListMinus, FolderPlus, Plus } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
 import { VisuallyHidden } from "radix-ui";
 const VisuallyHiddenRoot = VisuallyHidden.Root;
@@ -43,10 +52,22 @@ export function FullscreenPlayer({
 }: FullscreenPlayerProps) {
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const queue = usePlayerStore((s) => s.queue);
+  const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
   const repeatMode = usePlayerStore((s) => s.repeatMode);
   const toggleRepeat = usePlayerStore((s) => s.toggleRepeat);
+  const playlists = usePlaylistsStore((s) => s.playlists);
+  const createPlaylist = usePlaylistsStore((s) => s.createPlaylist);
+  const addTrackToPlaylist = usePlaylistsStore((s) => s.addTrack);
+  const loadPlaylists = usePlaylistsStore((s) => s.loadPlaylists);
+
+  useEffect(() => { loadPlaylists(); }, [loadPlaylists]);
 
   if (!currentTrack) return null;
+
+  const queueIndex = queue.findIndex((t) => t.id === currentTrack.id);
+  const isInQueue = queueIndex >= 0;
 
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
@@ -128,10 +149,47 @@ export function FullscreenPlayer({
               <SkipForward className="h-6 w-6" />
             </Button>
           </div>
-          <div className="flex justify-center">
+          <div className="flex items-center justify-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => isInQueue ? removeFromQueue(queueIndex) : addToQueue(currentTrack)}
+              title={isInQueue ? "Убрать из очереди" : "В очередь"}
+            >
+              {isInQueue ? (
+                <ListMinus className="h-5 w-5 text-green-500" />
+              ) : (
+                <ListPlus className="h-5 w-5" />
+              )}
+            </Button>
             <Button variant="ghost" size="icon" onClick={toggleRepeat}>
               <Repeat1 className={`h-5 w-5 ${repeatMode === "one" ? "text-green-500" : ""}`} />
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title="В плейлист">
+                  <FolderPlus className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center">
+                {playlists.map((pl) => (
+                  <DropdownMenuItem key={pl.id} onClick={() => addTrackToPlaylist(pl.id, currentTrack)}>
+                    {pl.name}
+                  </DropdownMenuItem>
+                ))}
+                {playlists.length > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuItem onClick={async () => {
+                  const name = prompt("Название плейлиста:");
+                  if (!name?.trim()) return;
+                  await createPlaylist(name.trim());
+                  const { playlists: updated } = usePlaylistsStore.getState();
+                  if (updated.length > 0) addTrackToPlaylist(updated[0].id, currentTrack);
+                }}>
+                  <Plus className="h-4 w-4 mr-2 text-green-500" />
+                  <span className="text-green-500">Создать новый</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </DrawerContent>

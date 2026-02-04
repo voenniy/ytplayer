@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Play, Pause, SkipForward, ListPlus, FolderPlus, Plus } from "lucide-react";
+import { Play, Pause, SkipForward, ListPlus, ListMinus, FolderPlus, Plus } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
 
 interface MiniPlayerProps {
@@ -29,7 +29,9 @@ export function MiniPlayer({
 }: MiniPlayerProps) {
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
+  const queue = usePlayerStore((s) => s.queue);
   const addToQueue = usePlayerStore((s) => s.addToQueue);
+  const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
   const playlists = usePlaylistsStore((s) => s.playlists);
   const createPlaylist = usePlaylistsStore((s) => s.createPlaylist);
   const addTrackToPlaylist = usePlaylistsStore((s) => s.addTrack);
@@ -38,6 +40,9 @@ export function MiniPlayer({
   useEffect(() => { loadPlaylists(); }, [loadPlaylists]);
 
   if (!currentTrack) return null;
+
+  const queueIndex = queue.findIndex((t) => t.id === currentTrack.id);
+  const isInQueue = queueIndex >= 0;
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -99,11 +104,15 @@ export function MiniPlayer({
           className="h-8 w-8 shrink-0"
           onClick={(e) => {
             e.stopPropagation();
-            addToQueue(currentTrack);
+            isInQueue ? removeFromQueue(queueIndex) : addToQueue(currentTrack);
           }}
-          title="В очередь"
+          title={isInQueue ? "Убрать из очереди" : "В очередь"}
         >
-          <ListPlus className="h-4 w-4" />
+          {isInQueue ? (
+            <ListMinus className="h-4 w-4 text-green-500" />
+          ) : (
+            <ListPlus className="h-4 w-4" />
+          )}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
