@@ -14,6 +14,7 @@ import { searchTracks } from "@/lib/api";
 import { usePlayerStore } from "@/stores/player";
 import { useAudio } from "@/hooks/useAudio";
 import { useMediaSession } from "@/hooks/useMediaSession";
+import { usePlayerSync } from "@/hooks/usePlayerSync";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginPage } from "@/components/LoginPage";
 
@@ -40,6 +41,7 @@ function App() {
 }
 
 function AuthenticatedApp() {
+  const { syncToServer } = usePlayerSync();
   const [mobileTab, setMobileTab] = useState<MobileTab>("search");
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const [lastQuery, setLastQuery] = useState(
@@ -95,11 +97,12 @@ function AuthenticatedApp() {
     if (storeIsPlaying) {
       audio.pause();
       storePause();
+      syncToServer();
     } else {
       audio.resume();
       storeResume();
     }
-  }, [storeIsPlaying, audio, storePause, storeResume]);
+  }, [storeIsPlaying, audio, storePause, storeResume, syncToServer]);
 
   const handlePlay = useCallback(() => {
     audio.resume();
