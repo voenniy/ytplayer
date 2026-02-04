@@ -1,12 +1,19 @@
 import { Router } from "express";
 import { getDb } from "../db";
+import type { AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
-// GET /api/playlists
-router.get("/", (_req, res) => {
+function verifyPlaylistOwner(playlistId: string, userId: number): boolean {
   const db = getDb();
-  const playlists = db.prepare("SELECT * FROM playlists ORDER BY created_at DESC").all();
+  const playlist = db.prepare("SELECT id FROM playlists WHERE id = ? AND user_id = ?").get(playlistId, userId);
+  return !!playlist;
+}
+
+// GET /api/playlists
+router.get("/", (req, res) => {
+  const db = getDb();
+  const playlists = db.prepare("SELECT * FROM playlists WHERE user_id = ? ORDER BY created_at DESC").all((req as AuthRequest).userId);
   res.json(playlists);
 });
 
@@ -16,19 +23,27 @@ router.post("/", (req, res) => {
   if (!name) return res.status(400).json({ error: "Name is required" });
 
   const db = getDb();
-  const result = db.prepare("INSERT INTO playlists (name) VALUES (?)").run(name);
+  const result = db.prepare("INSERT INTO playlists (name, user_id) VALUES (?, ?)").run(name, (req as AuthRequest).userId);
   res.status(201).json({ id: result.lastInsertRowid, name });
 });
 
 // DELETE /api/playlists/:id
 router.delete("/:id", (req, res) => {
+  if (!verifyPlaylistOwner(req.params.id, (req as AuthRequest).userId!)) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
   const db = getDb();
-  db.prepare("DELETE FROM playlists WHERE id = ?").run(req.params.id);
+  db.prepare("DELETE FROM playlists WHERE id = ? AND user_id = ?").run(req.params.id, (req as AuthRequest).userId);
   res.status(204).end();
 });
 
 // GET /api/playlists/:id/tracks
 router.get("/:id/tracks", (req, res) => {
+  if (!verifyPlaylistOwner(req.params.id, (req as AuthRequest).userId!)) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
   const db = getDb();
   const rows = db
     .prepare("SELECT id as _rowId, video_id, title, artist, thumbnail, duration, view_count, like_count, position FROM playlist_tracks WHERE playlist_id = ? ORDER BY position")
@@ -48,6 +63,10 @@ router.get("/:id/tracks", (req, res) => {
 
 // POST /api/playlists/:id/tracks
 router.post("/:id/tracks", (req, res) => {
+  if (!verifyPlaylistOwner(req.params.id, (req as AuthRequest).userId!)) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
   const { video_id, title, artist, thumbnail, duration, view_count, like_count } = req.body;
   if (!video_id || !title) {
     return res.status(400).json({ error: "video_id and title are required" });
@@ -71,6 +90,10 @@ router.post("/:id/tracks", (req, res) => {
 
 // PUT /api/playlists/:id/tracks/reorder
 router.put("/:id/tracks/reorder", (req, res) => {
+  if (!verifyPlaylistOwner(req.params.id, (req as AuthRequest).userId!)) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
   const { trackIds } = req.body;
   if (!Array.isArray(trackIds)) {
     return res.status(400).json({ error: "trackIds array is required" });
@@ -89,6 +112,10 @@ router.put("/:id/tracks/reorder", (req, res) => {
 
 // DELETE /api/playlists/:playlistId/tracks/:trackId
 router.delete("/:playlistId/tracks/:trackId", (req, res) => {
+  if (!verifyPlaylistOwner(req.params.playlistId, (req as AuthRequest).userId!)) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
   const db = getDb();
   db.prepare("DELETE FROM playlist_tracks WHERE id = ? AND playlist_id = ?").run(
     req.params.trackId,
