@@ -134,6 +134,7 @@ export const usePlayerStore = create<PlayerState>()(
     }),
     {
       name: "musicplay-player",
+      version: 1,
       partialize: (state) => ({
         currentTrack: state.currentTrack,
         queue: state.queue,
@@ -142,6 +143,21 @@ export const usePlayerStore = create<PlayerState>()(
         searchResults: state.searchResults,
         nextPageToken: state.nextPageToken,
       }),
+      migrate: (persisted: any, version: number) => {
+        if (version < 1) {
+          // v0 -> v1: normalize i.ytimg.com URLs to /api/thumb/
+          const re = /^https?:\/\/i\.ytimg\.com\/vi\/([a-zA-Z0-9_-]{11})\//;
+          const fix = (t: any) => {
+            if (!t?.thumbnail) return t;
+            const m = t.thumbnail.match(re);
+            return m ? { ...t, thumbnail: `/api/thumb/${m[1]}` } : t;
+          };
+          if (persisted.currentTrack) persisted.currentTrack = fix(persisted.currentTrack);
+          if (persisted.queue) persisted.queue = persisted.queue.map(fix);
+          if (persisted.searchResults) persisted.searchResults = persisted.searchResults.map(fix);
+        }
+        return persisted;
+      },
     },
   ),
 );
