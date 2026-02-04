@@ -41,6 +41,7 @@ jobs:
           host: 5.180.82.187
           username: deploy
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          fingerprint: SHA256:yfJ3MImyVPwYWz3qVIlzR0U7hbEfX6kVfJRvL4WG+20
           script: |
             cd ~/musicplay
             docker compose pull
