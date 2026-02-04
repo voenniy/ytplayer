@@ -125,6 +125,11 @@ function AuthenticatedApp() {
     onNextTrack: playNext,
   });
 
+  // Auto-search on page load if URL has ?q= parameter
+  useEffect(() => {
+    if (lastQuery) handleSearch(lastQuery);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSearch = async (query: string) => {
     setLastQuery(query);
     const url = new URL(window.location.href);
