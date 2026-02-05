@@ -3,8 +3,11 @@ services:
     image: ghcr.io/voenniy/ytplayer:latest
     restart: unless-stopped
     env_file: .env
+    environment:
+      - LOG_DIR=/app/logs
     volumes:
       - db-data:/app/data
+      - ./logs:/app/logs
     networks:
       - web
 
