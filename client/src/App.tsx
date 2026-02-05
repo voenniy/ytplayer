@@ -53,6 +53,7 @@ function AuthenticatedApp() {
   const [isSearching, setIsSearching] = useState(false);
   const isFirstMountRef = useRef(true);
   const prevTrackIdRef = useRef<string | undefined>(undefined);
+  const hasAutoSearchedRef = useRef(false);
 
   const setSearchResults = usePlayerStore((s) => s.setSearchResults);
   const appendSearchResults = usePlayerStore((s) => s.appendSearchResults);
@@ -128,9 +129,12 @@ function AuthenticatedApp() {
     onNextTrack: playNext,
   });
 
-  // Auto-search on page load if URL has ?q= parameter
+  // Auto-search on page load if URL has ?q= parameter (with StrictMode protection)
   useEffect(() => {
-    if (lastQuery) handleSearch(lastQuery);
+    if (lastQuery && !hasAutoSearchedRef.current) {
+      hasAutoSearchedRef.current = true;
+      handleSearch(lastQuery);
+    }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = async (query: string) => {
