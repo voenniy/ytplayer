@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { PassThrough } from "stream";
 import { isValidVideoId, resolveAudioUrl, invalidateCache } from "../services/audio";
+import { logger } from "../lib/logger";
+
+const log = logger.child({ service: "stream" });
 
 const router = Router();
 
@@ -87,7 +90,7 @@ class StreamBuffer {
     this.chunks = [];
     this.totalBuffered = 0;
     buffers.delete(this.videoId);
-    console.log(`[BUFFER] Destroyed buffer for ${this.videoId}`);
+    log.debug({ videoId: this.videoId }, "Buffer destroyed");
   }
 
   /** Bytes remaining ahead from a given position */
@@ -116,7 +119,7 @@ setInterval(() => {
   for (const [id, buf] of buffers) {
     if (buf.totalBuffered === 0 && !buf.filling) {
       buf.destroy();
-      console.log(`[BUFFER] Sweep cleaned empty buffer for ${id}`);
+      log.debug({ videoId: id }, "Sweep cleaned empty buffer");
     }
   }
 }, SWEEP_INTERVAL);
@@ -184,7 +187,7 @@ function splitUpstream(
       }
     } catch (err: any) {
       if (err.name !== "AbortError") {
-        console.error("[BUFFER] Upstream read error:", err);
+        log.error({ err }, "Upstream read error");
       }
     } finally {
       if (!pt.writableEnded) pt.end();
@@ -205,7 +208,7 @@ function proactiveReadAhead(buf: StreamBuffer): void {
   const start = buf.bufferEnd + 1;
   const end = Math.min(start + READ_AHEAD - 1, buf.contentLength - 1);
 
-  console.log(`[READ-AHEAD] ${buf.videoId} bytes=${start}-${end}`);
+  log.debug({ videoId: buf.videoId, start, end }, "Read-ahead started");
 
   buf.filling = true;
   const abort = new AbortController();
@@ -229,7 +232,7 @@ function proactiveReadAhead(buf: StreamBuffer): void {
         }
       } catch (err: any) {
         if (err.name !== "AbortError") {
-          console.error("[READ-AHEAD] Error:", err);
+          log.error({ err }, "Read-ahead error");
         }
       } finally {
         buf.filling = false;
@@ -238,7 +241,7 @@ function proactiveReadAhead(buf: StreamBuffer): void {
     })
     .catch((err) => {
       if (err.name !== "AbortError") {
-        console.error("[READ-AHEAD] Fetch error:", err);
+        log.error({ err }, "Read-ahead fetch error");
       }
       buf.filling = false;
       buf.activeAbort = null;
@@ -257,7 +260,7 @@ router.get("/:videoId", async (req, res) => {
   try {
     audioInfo = await resolveAudioUrl(videoId);
   } catch (err) {
-    console.error("Failed to resolve audio URL:", err);
+    log.error({ err, videoId }, "Failed to resolve audio URL");
     return res.status(502).json({ error: "Failed to resolve audio" });
   }
 
@@ -280,7 +283,7 @@ router.get("/:videoId", async (req, res) => {
     const browserEnd = Math.min(contentLength - 1, INITIAL_CHUNK - 1);
     const upstreamEnd = Math.min(contentLength - 1, READ_AHEAD - 1);
 
-    console.log(`[BUFFER MISS] ${videoId} initial bytes=0-${upstreamEnd} (serve 0-${browserEnd})`);
+    log.debug({ videoId, upstreamEnd, browserEnd }, "Buffer miss (initial)");
 
     const upstream = await fetch(audioUrl, {
       headers: upstreamHeaders(`bytes=0-${upstreamEnd}`),
@@ -319,7 +322,7 @@ router.get("/:videoId", async (req, res) => {
 
   // --- Buffer HIT ---
   if (buf.covers(start, end)) {
-    console.log(`[BUFFER HIT] ${videoId} bytes=${start}-${end}`);
+    log.debug({ videoId, start, end }, "Buffer hit");
     buf.touch();
 
     const data = buf.slice(start, end);
@@ -348,7 +351,7 @@ router.get("/:videoId", async (req, res) => {
   const upstreamEnd = Math.min(upstreamStart + READ_AHEAD - 1, contentLength - 1);
   const browserBytes = end - start + 1;
 
-  console.log(`[BUFFER MISS] ${videoId} bytes=${upstreamStart}-${upstreamEnd} (serve ${start}-${end})`);
+  log.debug({ videoId, upstreamStart, upstreamEnd, start, end }, "Buffer miss");
 
   const MAX_ATTEMPTS = 2;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -358,7 +361,7 @@ router.get("/:videoId", async (req, res) => {
         headers: upstreamHeaders(`bytes=${upstreamStart}-${upstreamEnd}`),
       });
     } catch (err) {
-      console.error("Upstream fetch failed:", err);
+      log.error({ err, videoId }, "Upstream fetch failed");
       return res.status(502).json({ error: "Upstream fetch failed" });
     }
 
@@ -374,7 +377,7 @@ router.get("/:videoId", async (req, res) => {
         buf.httpHeaders = httpHeaders;
         buf.contentLength = contentLength;
       } catch (err) {
-        console.error("Failed to re-resolve audio URL:", err);
+        log.error({ err, videoId }, "Failed to re-resolve audio URL");
         return res.status(502).json({ error: "Failed to resolve audio" });
       }
       continue;

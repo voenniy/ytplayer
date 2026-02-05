@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { logger } from "../lib/logger";
 
+const log = logger.child({ service: "auth" });
 const JWT_SECRET = process.env.JWT_SECRET || "musicplay-dev-secret";
 const COOKIE_NAME = "musicplay_token";
 const MAX_AGE = 365 * 24 * 60 * 60 * 1000; // 1 year
@@ -12,6 +14,7 @@ export interface AuthRequest extends Request {
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction): void {
   const token = req.cookies?.[COOKIE_NAME];
   if (!token) {
+    log.warn({ path: req.path, ip: req.ip }, "No token provided");
     res.status(401).json({ error: "Not authenticated" });
     return;
   }
@@ -30,7 +33,8 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
     });
 
     next();
-  } catch {
+  } catch (err) {
+    log.warn({ path: req.path, ip: req.ip, err }, "Invalid token");
     res.status(401).json({ error: "Invalid token" });
   }
 }

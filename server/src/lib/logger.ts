@@ -15,7 +15,7 @@ const streams = [
     stream: pino.destination({
       dest: logFile,
       mkdir: true,
-      sync: false,
+      sync: true, // Синхронная запись для мгновенного отображения в tail -f
     }),
   },
 ];

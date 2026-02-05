@@ -1,4 +1,7 @@
 import { spawn } from "child_process";
+import { logger } from "../lib/logger";
+
+const log = logger.child({ service: "yt-dlp" });
 
 const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
 const CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours
@@ -64,7 +67,7 @@ function fetchYtdlpJson(videoId: string): Promise<any> {
     let stdout = "";
     proc.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
     proc.stderr.on("data", (data: Buffer) => {
-      console.error(`yt-dlp stderr: ${data}`);
+      log.warn({ stderr: data.toString().trim() }, "yt-dlp stderr");
     });
     proc.on("close", (code) => {
       if (code !== 0) return reject(new Error(`yt-dlp exited with code ${code}`));

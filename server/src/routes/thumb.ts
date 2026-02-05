@@ -1,5 +1,7 @@
 import { Router } from "express";
+import { logger } from "../lib/logger";
 
+const log = logger.child({ service: "thumb" });
 const router = Router();
 
 const VIDEO_ID_RE = /^[a-zA-Z0-9_-]{11}$/;
@@ -57,7 +59,7 @@ router.get("/:videoId", async (req, res) => {
     res.setHeader("Cache-Control", "public, max-age=86400");
     res.end(buffer);
   } catch (err) {
-    console.error("[THUMB] Fetch error:", err);
+    log.error({ err, videoId }, "Fetch error");
     res.status(502).json({ error: "Failed to fetch thumbnail" });
   }
 });
