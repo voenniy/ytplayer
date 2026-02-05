@@ -37,6 +37,17 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.DEPLOY_HOST }}
+          port: ${{ vars.DEPLOY_PORT }}
+          username: ${{ vars.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: deploy/docker-compose.yml
+          target: ~/musicplay
+          strip_components: 1
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
