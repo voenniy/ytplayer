@@ -14,7 +14,7 @@ export function Queue() {
   const playFromQueue = usePlayerStore((s) => s.playFromQueue);
 
   return (
-    <aside className="w-full md:w-64 md:border-l flex flex-col">
+    <aside className="w-full md:w-64 md:border-l flex flex-col h-full overflow-hidden">
       <div className="p-3 border-b flex items-center justify-between">
         <h2 className="text-sm font-semibold">Очередь ({queue.length})</h2>
         <div className="flex gap-1">

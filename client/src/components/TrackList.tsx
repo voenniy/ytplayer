@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePlaylistsStore } from "@/stores/playlists";
-import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, Plus, Volume2, Pause, ExternalLink, FolderPlus, MoreVertical } from "lucide-react";
+import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, ListMinus, Plus, Volume2, Pause, ExternalLink, FolderPlus, MoreVertical } from "lucide-react";
 import { usePlayerStore } from "@/stores/player";
 import { handleImgError } from "@/lib/img-fallback";
 
@@ -87,6 +87,8 @@ function TrackPlaylistMenu({ track }: { track: Track }) {
 export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, isLoading }: TrackListProps) {
   const currentTrackId = usePlayerStore((s) => s.currentTrack?.id);
   const storeIsPlaying = usePlayerStore((s) => s.isPlaying);
+  const queue = usePlayerStore((s) => s.queue);
+  const removeFromQueue = usePlayerStore((s) => s.removeFromQueue);
   const [sortField, setSortField] = useState<SortField>("default");
   const [sortAsc, setSortAsc] = useState(false);
 
@@ -140,6 +142,8 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
       <div className="space-y-1">
         {sortedTracks.map((track) => {
           const isCurrent = track.id === currentTrackId;
+          const queueIndex = queue.findIndex((t) => t.id === track.id);
+          const isInQueue = queueIndex >= 0;
           return (
           <div
             key={track.id}
@@ -208,10 +212,14 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               variant="ghost"
               size="icon"
               className="hidden md:inline-flex opacity-0 group-hover:opacity-100 shrink-0"
-              onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}
-              title="В очередь"
+              onClick={(e) => { e.stopPropagation(); isInQueue ? removeFromQueue(queueIndex) : onAddToQueue(track); }}
+              title={isInQueue ? "Убрать из очереди" : "В очередь"}
             >
-              <ListPlus className="h-4 w-4" />
+              {isInQueue ? (
+                <ListMinus className="h-4 w-4 text-green-500" />
+              ) : (
+                <ListPlus className="h-4 w-4" />
+              )}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -242,9 +250,13 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onAddToQueue(track); }}>
-                  <ListPlus className="h-4 w-4 mr-2" />
-                  В очередь
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); isInQueue ? removeFromQueue(queueIndex) : onAddToQueue(track); }}>
+                  {isInQueue ? (
+                    <ListMinus className="h-4 w-4 mr-2 text-green-500" />
+                  ) : (
+                    <ListPlus className="h-4 w-4 mr-2" />
+                  )}
+                  {isInQueue ? "Убрать из очереди" : "В очередь"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <TrackPlaylistMenu track={track} />
