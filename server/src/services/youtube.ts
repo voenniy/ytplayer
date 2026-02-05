@@ -26,6 +26,8 @@ export async function searchYouTube(query: string, pageToken?: string): Promise<
   url.searchParams.set("key", apiKey);
   if (pageToken) url.searchParams.set("pageToken", pageToken);
 
+  console.log(`[YouTube API] search: q="${query}" pageToken=${pageToken || "none"} (cost: 100 units)`);
+
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
 
@@ -68,6 +70,8 @@ async function fetchVideoDetails(
   url.searchParams.set("id", videoIds.join(","));
   url.searchParams.set("key", apiKey);
 
+  console.log(`[YouTube API] videos.list: ${videoIds.length} videos (cost: 1 unit)`);
+
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`YouTube Videos API error: ${res.status}`);
 
@@ -93,6 +97,8 @@ export async function getVideoInfo(videoId: string): Promise<Track> {
   url.searchParams.set("part", "snippet,contentDetails,statistics");
   url.searchParams.set("id", videoId);
   url.searchParams.set("key", apiKey);
+
+  console.log(`[YouTube API] videos.get: ${videoId} (cost: 1 unit)`);
 
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
