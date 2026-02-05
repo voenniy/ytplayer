@@ -130,8 +130,8 @@ describe("resolveAudioUrl", () => {
       "--dump-json",
       "--no-warnings",
       "--no-playlist",
-      "--extractor-args",
-      "youtube:player_client=ios,web",
+      "-f",
+      "bestaudio",
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     ]);
   });
