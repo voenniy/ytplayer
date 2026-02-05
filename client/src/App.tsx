@@ -44,9 +44,12 @@ function AuthenticatedApp() {
   const { syncToServer } = usePlayerSync();
   const [mobileTab, setMobileTab] = useState<MobileTab>("search");
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
-  const [lastQuery, setLastQuery] = useState(
-    () => new URLSearchParams(window.location.search).get("q") || "",
-  );
+  const [lastQuery, setLastQuery] = useState(() => {
+    // Priority: URL ?q= param > localStorage
+    const urlQuery = new URLSearchParams(window.location.search).get("q");
+    if (urlQuery) return urlQuery;
+    return localStorage.getItem("musicplay-query") || "";
+  });
   const [isSearching, setIsSearching] = useState(false);
   const isFirstMountRef = useRef(true);
   const prevTrackIdRef = useRef<string | undefined>(undefined);
@@ -132,6 +135,7 @@ function AuthenticatedApp() {
 
   const handleSearch = async (query: string) => {
     setLastQuery(query);
+    localStorage.setItem("musicplay-query", query);
     const url = new URL(window.location.href);
     url.searchParams.set("q", query);
     window.history.replaceState({}, "", url.toString());
