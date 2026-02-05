@@ -57,7 +57,7 @@ function fetchYtdlpJson(videoId: string): Promise<any> {
     const url = buildStreamUrl(videoId);
     const proc = spawn("yt-dlp", [
       "--dump-json", "--no-warnings", "--no-playlist",
-      "--extractor-args", "youtube:player_client=android_vr",
+      "--extractor-args", "youtube:player_client=ios,web",
       url,
     ]);
 

@@ -131,7 +131,7 @@ describe("resolveAudioUrl", () => {
       "--no-warnings",
       "--no-playlist",
       "--extractor-args",
-      "youtube:player_client=android_vr",
+      "youtube:player_client=ios,web",
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     ]);
   });
