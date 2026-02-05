@@ -11,6 +11,7 @@ import playerStateRouter from "./routes/player-state";
 import thumbRouter from "./routes/thumb";
 import { initDb } from "./db";
 import { requireAuth } from "./middleware/auth";
+import { logger } from "./lib/logger";
 
 dotenv.config();
 
@@ -45,7 +46,7 @@ app.get("{*path}", (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info({ port: PORT }, "Server started");
 });
 
 export default app;

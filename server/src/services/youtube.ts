@@ -1,4 +1,5 @@
 import type { Track, SearchResult } from "../types";
+import { youtubeLogger as log } from "../lib/logger";
 
 const YOUTUBE_URL_PATTERNS = [
   /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
@@ -26,7 +27,7 @@ export async function searchYouTube(query: string, pageToken?: string): Promise<
   url.searchParams.set("key", apiKey);
   if (pageToken) url.searchParams.set("pageToken", pageToken);
 
-  console.log(`[YouTube API] search: q="${query}" pageToken=${pageToken || "none"} (cost: 100 units)`);
+  log.info({ query, pageToken: pageToken || null, cost: 100 }, "search request");
 
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
@@ -70,7 +71,7 @@ async function fetchVideoDetails(
   url.searchParams.set("id", videoIds.join(","));
   url.searchParams.set("key", apiKey);
 
-  console.log(`[YouTube API] videos.list: ${videoIds.length} videos (cost: 1 unit)`);
+  log.info({ videoCount: videoIds.length, cost: 1 }, "videos.list request");
 
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`YouTube Videos API error: ${res.status}`);
@@ -98,7 +99,7 @@ export async function getVideoInfo(videoId: string): Promise<Track> {
   url.searchParams.set("id", videoId);
   url.searchParams.set("key", apiKey);
 
-  console.log(`[YouTube API] videos.get: ${videoId} (cost: 1 unit)`);
+  log.info({ videoId, cost: 1 }, "videos.get request");
 
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
