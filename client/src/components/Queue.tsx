@@ -26,7 +26,7 @@ export function Queue() {
           </Button>
         </div>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-2 space-y-1">
           {queue.length === 0 && (
             <p className="text-xs text-muted-foreground p-2">Очередь пуста</p>
