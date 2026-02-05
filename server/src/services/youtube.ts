@@ -1,5 +1,6 @@
 import type { Track, SearchResult } from "../types";
 import { youtubeLogger as log } from "../lib/logger";
+import { getCachedSearch, cacheSearch, normalizeQuery } from "./search-cache";
 
 const YOUTUBE_URL_PATTERNS = [
   /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
@@ -18,6 +19,22 @@ export async function searchYouTube(query: string, pageToken?: string): Promise<
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) throw new Error("YOUTUBE_API_KEY not set");
 
+  let videoIds: string[];
+  let nextPageToken: string | undefined;
+
+  // Кеш только для первой страницы (без pageToken)
+  if (!pageToken) {
+    const cached = getCachedSearch(query);
+    if (cached) {
+      videoIds = cached.videoIds;
+      nextPageToken = cached.nextPageToken;
+      // Метаданные всегда свежие (1 unit)
+      const tracks = await fetchVideosWithDetails(apiKey, videoIds);
+      return { tracks, nextPageToken };
+    }
+  }
+
+  // Запрос к YouTube Search API (100 units)
   const url = new URL("https://www.googleapis.com/youtube/v3/search");
   url.searchParams.set("part", "snippet");
   url.searchParams.set("q", query);
@@ -33,9 +50,15 @@ export async function searchYouTube(query: string, pageToken?: string): Promise<
   if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
 
   const data = await res.json();
-  const videoIds = data.items.map((item: any) => item.id.videoId as string);
+  videoIds = data.items.map((item: any) => item.id.videoId as string);
+  nextPageToken = data.nextPageToken;
 
-  // Batch-запрос к Videos API за duration, viewCount, likeCount
+  // Сохраняем в кеш (только первую страницу)
+  if (!pageToken) {
+    cacheSearch(query, videoIds, nextPageToken);
+  }
+
+  // Batch-запрос к Videos API за snippet + duration, viewCount, likeCount
   const detailsMap = await fetchVideoDetails(apiKey, videoIds);
 
   const tracks: Track[] = data.items.map((item: any) => {
@@ -51,13 +74,43 @@ export async function searchYouTube(query: string, pageToken?: string): Promise<
     };
   });
 
-  return { tracks, nextPageToken: data.nextPageToken };
+  return { tracks, nextPageToken };
 }
 
 interface VideoDetails {
   duration: number;
   viewCount: number;
   likeCount: number;
+}
+
+/**
+ * Получить полную информацию о видео (для cache hit)
+ * Включает snippet для title/artist + statistics
+ */
+async function fetchVideosWithDetails(apiKey: string, videoIds: string[]): Promise<Track[]> {
+  if (videoIds.length === 0) return [];
+
+  const url = new URL("https://www.googleapis.com/youtube/v3/videos");
+  url.searchParams.set("part", "snippet,contentDetails,statistics");
+  url.searchParams.set("id", videoIds.join(","));
+  url.searchParams.set("key", apiKey);
+
+  log.info({ videoCount: videoIds.length, cost: 1, cached: true }, "videos.list request (from cache)");
+
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`YouTube Videos API error: ${res.status}`);
+
+  const data = await res.json();
+
+  return data.items.map((item: any) => ({
+    id: item.id,
+    title: decodeHtmlEntities(item.snippet.title),
+    artist: decodeHtmlEntities(item.snippet.channelTitle),
+    thumbnail: `/api/thumb/${item.id}`,
+    duration: parseDuration(item.contentDetails.duration),
+    viewCount: parseInt(item.statistics.viewCount || "0"),
+    likeCount: parseInt(item.statistics.likeCount || "0"),
+  }));
 }
 
 async function fetchVideoDetails(

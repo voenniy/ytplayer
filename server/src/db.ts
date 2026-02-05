@@ -43,6 +43,15 @@ export function initDb(path: string = process.env.DB_PATH || "./musicplay.db"): 
       repeat_mode TEXT NOT NULL DEFAULT 'off',
       updated_at TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS search_cache (
+      query TEXT PRIMARY KEY,
+      video_ids TEXT NOT NULL,
+      next_page_token TEXT,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_search_cache_created_at ON search_cache(created_at);
   `);
 
   // Миграция: добавить колонки если таблица уже существует без них

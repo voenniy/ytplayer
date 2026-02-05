@@ -12,6 +12,7 @@ import thumbRouter from "./routes/thumb";
 import { initDb } from "./db";
 import { requireAuth } from "./middleware/auth";
 import { logger } from "./lib/logger";
+import { cleanExpiredCache } from "./services/search-cache";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 initDb();
+cleanExpiredCache();
 
 // Public routes
 app.use("/api/auth", authRouter);
