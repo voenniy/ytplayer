@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Play, Pause, SkipForward, ListPlus, ListMinus, FolderPlus, Plus } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
+import { useTranslation } from "@/i18n";
 
 interface MiniPlayerProps {
   currentTime: number;
@@ -27,6 +28,7 @@ export function MiniPlayer({
   onNext,
   onTap,
 }: MiniPlayerProps) {
+  const { t } = useTranslation();
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const queue = usePlayerStore((s) => s.queue);
@@ -106,7 +108,7 @@ export function MiniPlayer({
             e.stopPropagation();
             isInQueue ? removeFromQueue(queueIndex) : addToQueue(currentTrack);
           }}
-          title={isInQueue ? "Убрать из очереди" : "В очередь"}
+          title={isInQueue ? t("queue.removeFromQueue") : t("queue.addToQueue")}
         >
           {isInQueue ? (
             <ListMinus className="h-4 w-4 text-green-500" />
@@ -121,7 +123,7 @@ export function MiniPlayer({
               size="icon"
               className="h-8 w-8 shrink-0"
               onClick={(e) => e.stopPropagation()}
-              title="В плейлист"
+              title={t("playlist.addToPlaylist")}
             >
               <FolderPlus className="h-4 w-4" />
             </Button>
@@ -134,14 +136,14 @@ export function MiniPlayer({
             ))}
             {playlists.length > 0 && <DropdownMenuSeparator />}
             <DropdownMenuItem onClick={async () => {
-              const name = prompt("Название плейлиста:");
+              const name = prompt(t("playlist.createPrompt"));
               if (!name?.trim()) return;
               await createPlaylist(name.trim());
               const { playlists: updated } = usePlaylistsStore.getState();
               if (updated.length > 0) addTrackToPlaylist(updated[0].id, currentTrack);
             }}>
               <Plus className="h-4 w-4 mr-2 text-green-500" />
-              <span className="text-green-500">Создать новый</span>
+              <span className="text-green-500">{t("playlist.createNew")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

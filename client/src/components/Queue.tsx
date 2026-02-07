@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { X, Shuffle, Trash2, Volume2, Pause, ExternalLink } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
+import { useTranslation } from "@/i18n";
 
 export function Queue() {
+  const { t } = useTranslation();
   const queue = usePlayerStore((s) => s.queue);
   const currentIndex = usePlayerStore((s) => s.currentIndex);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
@@ -16,7 +18,7 @@ export function Queue() {
   return (
     <aside className="w-full md:w-64 md:border-l flex flex-col h-full overflow-hidden">
       <div className="p-3 border-b flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Очередь ({queue.length})</h2>
+        <h2 className="text-sm font-semibold">{t("queue.title", { count: queue.length })}</h2>
         <div className="flex gap-1">
           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={shuffle} disabled={queue.length < 2}>
             <Shuffle className="h-3.5 w-3.5" />
@@ -29,7 +31,7 @@ export function Queue() {
       <ScrollArea className="flex-1 min-h-0">
         <div className="p-2 space-y-1">
           {queue.length === 0 && (
-            <p className="text-xs text-muted-foreground p-2">Очередь пуста</p>
+            <p className="text-xs text-muted-foreground p-2">{t("queue.empty")}</p>
           )}
           {queue.map((track, index) => {
             const isCurrent = index === currentIndex;

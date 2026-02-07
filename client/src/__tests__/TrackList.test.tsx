@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { TrackList } from "../components/TrackList";
+import { renderWithI18n } from "./test-utils";
 
 const mockTracks = [
   { id: "abc", title: "Test Song", artist: "Artist", thumbnail: "http://img.jpg", duration: 240, viewCount: 1000, likeCount: 50 },
@@ -10,14 +11,14 @@ const mockTracks = [
 
 describe("TrackList", () => {
   it("renders track titles", () => {
-    render(<TrackList tracks={mockTracks} onPlay={vi.fn()} onAddToQueue={vi.fn()} />);
+    renderWithI18n(<TrackList tracks={mockTracks} onPlay={vi.fn()} onAddToQueue={vi.fn()} />);
     expect(screen.getByText("Test Song")).toBeInTheDocument();
     expect(screen.getByText("Another Song")).toBeInTheDocument();
   });
 
   it("calls onPlay when track is clicked", async () => {
     const onPlay = vi.fn();
-    render(<TrackList tracks={mockTracks} onPlay={onPlay} onAddToQueue={vi.fn()} />);
+    renderWithI18n(<TrackList tracks={mockTracks} onPlay={onPlay} onAddToQueue={vi.fn()} />);
     await userEvent.click(screen.getByText("Test Song"));
     expect(onPlay).toHaveBeenCalledWith(mockTracks[0]);
   });

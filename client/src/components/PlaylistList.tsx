@@ -4,12 +4,14 @@ import { usePlayerStore } from "@/stores/player";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Play, ChevronRight, ListMusic, Trash2 } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 interface PlaylistListProps {
   onOpenPlaylist: (id: number) => void;
 }
 
 export function PlaylistList({ onOpenPlaylist }: PlaylistListProps) {
+  const { t } = useTranslation();
   const [newName, setNewName] = useState("");
   const playlists = usePlaylistsStore((s) => s.playlists);
   const loadPlaylists = usePlaylistsStore((s) => s.loadPlaylists);
@@ -47,7 +49,7 @@ export function PlaylistList({ onOpenPlaylist }: PlaylistListProps) {
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-          placeholder="Новый плейлист..."
+          placeholder={t("playlist.newPlaceholder")}
           className="flex-1"
         />
         <Button size="icon" onClick={handleCreate} className="bg-green-500 hover:bg-green-600 text-black shrink-0">
@@ -85,7 +87,7 @@ export function PlaylistList({ onOpenPlaylist }: PlaylistListProps) {
           </div>
         ))}
         {playlists.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">Нет плейлистов</p>
+          <p className="text-sm text-muted-foreground text-center py-8">{t("playlist.emptyList")}</p>
         )}
       </div>
     </div>

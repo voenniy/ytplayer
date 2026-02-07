@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { Search } from "lucide-react";
 import { fetchSuggestions } from "@/lib/api";
+import { useTranslation } from "@/i18n";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -12,6 +13,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ onSearch, isLoading, initialQuery }: SearchBarProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState(initialQuery || "");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
@@ -101,7 +103,7 @@ export function SearchBar({ onSearch, isLoading, initialQuery }: SearchBarProps)
             }}
             onKeyDown={handleKeyDown}
             onFocus={() => suggestions.length > 0 && setOpen(true)}
-            placeholder="Вставьте ссылку на YouTube или введите поиск..."
+            placeholder={t("search.placeholder")}
             className="flex-1"
             disabled={isLoading}
             autoComplete="off"

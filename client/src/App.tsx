@@ -17,6 +17,7 @@ import { useMediaSession } from "@/hooks/useMediaSession";
 import { usePlayerSync } from "@/hooks/usePlayerSync";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginPage } from "@/components/LoginPage";
+import { useTranslation } from "@/i18n";
 
 function MobilePlaylistsView() {
   const [openId, setOpenId] = useState<number | null>(null);
@@ -28,10 +29,11 @@ function MobilePlaylistsView() {
 
 function App() {
   const { user, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return <div className="h-screen bg-background flex items-center justify-center">
-      <p className="text-muted-foreground">Загрузка...</p>
+      <p className="text-muted-foreground">{t("common.loading")}</p>
     </div>;
   }
 

@@ -1,4 +1,6 @@
 import { Search, ListMusic, ListOrdered } from "lucide-react";
+import { useTranslation } from "@/i18n";
+import type { TranslationKey } from "@/i18n";
 
 export type MobileTab = "search" | "playlists" | "queue";
 
@@ -7,16 +9,18 @@ interface MobileNavProps {
   onTabChange: (tab: MobileTab) => void;
 }
 
-const tabs: { id: MobileTab; label: string; icon: typeof Search }[] = [
-  { id: "search", label: "Поиск", icon: Search },
-  { id: "playlists", label: "Плейлисты", icon: ListMusic },
-  { id: "queue", label: "Очередь", icon: ListOrdered },
+const tabs: { id: MobileTab; labelKey: TranslationKey; icon: typeof Search }[] = [
+  { id: "search", labelKey: "nav.search", icon: Search },
+  { id: "playlists", labelKey: "nav.playlists", icon: ListMusic },
+  { id: "queue", labelKey: "nav.queue", icon: ListOrdered },
 ];
 
 export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
+  const { t } = useTranslation();
+
   return (
     <nav className="md:hidden border-t bg-card flex">
-      {tabs.map(({ id, label, icon: Icon }) => (
+      {tabs.map(({ id, labelKey, icon: Icon }) => (
         <button
           key={id}
           className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-xs transition-colors ${
@@ -27,7 +31,7 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
           onClick={() => onTabChange(id)}
         >
           <Icon className="h-5 w-5" />
-          {label}
+          {t(labelKey)}
         </button>
       ))}
     </nav>

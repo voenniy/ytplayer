@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Play, Pause, SkipBack, SkipForward, ChevronDown, Repeat1, ListPlus, ListMinus, FolderPlus, Plus } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
+import { useTranslation } from "@/i18n";
 import { VisuallyHidden } from "radix-ui";
 const VisuallyHiddenRoot = VisuallyHidden.Root;
 
@@ -50,6 +51,7 @@ export function FullscreenPlayer({
   onPrev,
   onSeek,
 }: FullscreenPlayerProps) {
+  const { t } = useTranslation();
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const isPlaying = usePlayerStore((s) => s.isPlaying);
   const queue = usePlayerStore((s) => s.queue);
@@ -73,7 +75,7 @@ export function FullscreenPlayer({
     <Drawer open={open} onOpenChange={(o) => !o && onClose()}>
       <DrawerContent className="!h-[100dvh] !max-h-[100dvh] !rounded-none !border-0 !mt-0">
         <VisuallyHiddenRoot>
-          <DrawerTitle>Плеер</DrawerTitle>
+          <DrawerTitle>{t("player.title")}</DrawerTitle>
         </VisuallyHiddenRoot>
 
         <div className="flex flex-col h-full px-6 pb-8">
@@ -88,7 +90,7 @@ export function FullscreenPlayer({
               <ChevronDown className="h-6 w-6" />
             </Button>
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Сейчас играет
+              {t("player.nowPlaying")}
             </span>
           </div>
 
@@ -154,7 +156,7 @@ export function FullscreenPlayer({
               variant="ghost"
               size="icon"
               onClick={() => isInQueue ? removeFromQueue(queueIndex) : addToQueue(currentTrack)}
-              title={isInQueue ? "Убрать из очереди" : "В очередь"}
+              title={isInQueue ? t("queue.removeFromQueue") : t("queue.addToQueue")}
             >
               {isInQueue ? (
                 <ListMinus className="h-5 w-5 text-green-500" />
@@ -167,7 +169,7 @@ export function FullscreenPlayer({
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" title="В плейлист">
+                <Button variant="ghost" size="icon" title={t("playlist.addToPlaylist")}>
                   <FolderPlus className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -179,14 +181,14 @@ export function FullscreenPlayer({
                 ))}
                 {playlists.length > 0 && <DropdownMenuSeparator />}
                 <DropdownMenuItem onClick={async () => {
-                  const name = prompt("Название плейлиста:");
+                  const name = prompt(t("playlist.createPrompt"));
                   if (!name?.trim()) return;
                   await createPlaylist(name.trim());
                   const { playlists: updated } = usePlaylistsStore.getState();
                   if (updated.length > 0) addTrackToPlaylist(updated[0].id, currentTrack);
                 }}>
                   <Plus className="h-4 w-4 mr-2 text-green-500" />
-                  <span className="text-green-500">Создать новый</span>
+                  <span className="text-green-500">{t("playlist.createNew")}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

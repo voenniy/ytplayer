@@ -2,6 +2,7 @@ import { useState } from "react";
 import { PlaylistList } from "@/components/PlaylistList";
 import { PlaylistDetail } from "@/components/PlaylistDetail";
 import { Search, ListMusic } from "lucide-react";
+import { useTranslation } from "@/i18n";
 
 type Tab = "search" | "playlists";
 
@@ -10,6 +11,7 @@ interface MainContentProps {
 }
 
 export function MainContent({ searchContent }: MainContentProps) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("search");
   const [openPlaylistId, setOpenPlaylistId] = useState<number | null>(null);
 
@@ -29,7 +31,7 @@ export function MainContent({ searchContent }: MainContentProps) {
           }`}
           onClick={() => setTab("search")}
         >
-          <Search className="h-4 w-4" /> Поиск
+          <Search className="h-4 w-4" /> {t("nav.search")}
         </button>
         <button
           className={`flex items-center gap-1.5 px-5 py-3 text-sm font-medium border-b-2 transition-colors ${
@@ -37,7 +39,7 @@ export function MainContent({ searchContent }: MainContentProps) {
           }`}
           onClick={() => setTab("playlists")}
         >
-          <ListMusic className="h-4 w-4" /> Плейлисты
+          <ListMusic className="h-4 w-4" /> {t("nav.playlists")}
         </button>
       </div>
       <div className="flex-1 overflow-auto min-h-0">

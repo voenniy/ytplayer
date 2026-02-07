@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Play, Pause, SkipForward, Volume2, Repeat1, ListPlus, ListMinus, FolderPlus, Plus } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
+import { useTranslation } from "@/i18n";
 
 function formatTime(sec: number): string {
   if (!sec || !isFinite(sec)) return "0:00";
@@ -41,6 +42,7 @@ export function Player({
   onSeek,
   onVolumeChange,
 }: PlayerProps) {
+  const { t } = useTranslation();
   const currentTrack = usePlayerStore((s) => s.currentTrack);
   const storeIsPlaying = usePlayerStore((s) => s.isPlaying);
   const queue = usePlayerStore((s) => s.queue);
@@ -97,7 +99,7 @@ export function Player({
             variant="ghost"
             size="icon"
             onClick={() => isInQueue ? removeFromQueue(queueIndex) : addToQueue(currentTrack)}
-            title={isInQueue ? "Убрать из очереди" : "В очередь"}
+            title={isInQueue ? t("queue.removeFromQueue") : t("queue.addToQueue")}
           >
             {isInQueue ? (
               <ListMinus className="h-5 w-5 text-green-500" />
@@ -107,7 +109,7 @@ export function Player({
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" title="В плейлист">
+              <Button variant="ghost" size="icon" title={t("playlist.addToPlaylist")}>
                 <FolderPlus className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -119,14 +121,14 @@ export function Player({
               ))}
               {playlists.length > 0 && <DropdownMenuSeparator />}
               <DropdownMenuItem onClick={async () => {
-                const name = prompt("Название плейлиста:");
+                const name = prompt(t("playlist.createPrompt"));
                 if (!name?.trim()) return;
                 await createPlaylist(name.trim());
                 const { playlists: updated } = usePlaylistsStore.getState();
                 if (updated.length > 0) addTrackToPlaylist(updated[0].id, currentTrack);
               }}>
                 <Plus className="h-4 w-4 mr-2 text-green-500" />
-                <span className="text-green-500">Создать новый</span>
+                <span className="text-green-500">{t("playlist.createNew")}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

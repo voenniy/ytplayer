@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Play, GripVertical, X, Volume2, Pause, ExternalLink } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
 import type { Track } from "@/lib/api";
+import { useTranslation } from "@/i18n";
 
 interface PlaylistDetailProps {
   playlistId: number;
@@ -14,6 +15,7 @@ interface PlaylistDetailProps {
 type TrackWithRowId = Track & { _rowId?: number };
 
 export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
+  const { t } = useTranslation();
   const playlists = usePlaylistsStore((s) => s.playlists);
   const tracks = usePlaylistsStore((s) => s.activePlaylistTracks) as TrackWithRowId[];
   const selectPlaylist = usePlaylistsStore((s) => s.selectPlaylist);
@@ -75,13 +77,13 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
         <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 shrink-0">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h2 className="text-lg font-bold truncate">{playlist?.name ?? "Плейлист"}</h2>
+        <h2 className="text-lg font-bold truncate">{playlist?.name ?? t("playlist.title")}</h2>
         <span className="text-sm text-muted-foreground shrink-0">
-          {tracks.length} {tracks.length === 1 ? "трек" : "треков"}
+          {t("playlist.tracks", { count: tracks.length })}
         </span>
         <div className="flex-1" />
         <Button onClick={handlePlayAll} size="sm" className="bg-green-500 hover:bg-green-600 text-black shrink-0">
-          <Play className="h-4 w-4 mr-1" /> Воспроизвести всё
+          <Play className="h-4 w-4 mr-1" /> {t("playlist.playAll")}
         </Button>
       </div>
       <div className="space-y-0.5">
@@ -134,7 +136,7 @@ export function PlaylistDetail({ playlistId, onBack }: PlaylistDetailProps) {
           );
         })}
         {tracks.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-8">Плейлист пуст</p>
+          <p className="text-sm text-muted-foreground text-center py-8">{t("playlist.empty")}</p>
         )}
       </div>
     </div>

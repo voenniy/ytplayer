@@ -12,6 +12,7 @@ import { usePlaylistsStore } from "@/stores/playlists";
 import { Eye, ThumbsUp, Clock, ArrowUpDown, Loader2, ListPlus, ListMinus, Plus, Volume2, Pause, ExternalLink, FolderPlus, MoreVertical } from "lucide-react";
 import { usePlayerStore } from "@/stores/player";
 import { handleImgError } from "@/lib/img-fallback";
+import { useTranslation } from "@/i18n";
 
 interface TrackListProps {
   tracks: Track[];
@@ -40,13 +41,16 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-const sortOptions: { field: SortField; label: string; icon: typeof Clock }[] = [
-  { field: "duration", label: "Длительность", icon: Clock },
-  { field: "viewCount", label: "Просмотры", icon: Eye },
-  { field: "likeCount", label: "Лайки", icon: ThumbsUp },
+import type { TranslationKey } from "@/i18n";
+
+const sortOptions: { field: SortField; labelKey: TranslationKey; icon: typeof Clock }[] = [
+  { field: "duration", labelKey: "sort.duration", icon: Clock },
+  { field: "viewCount", labelKey: "sort.views", icon: Eye },
+  { field: "likeCount", labelKey: "sort.likes", icon: ThumbsUp },
 ];
 
 function TrackPlaylistMenu({ track }: { track: Track }) {
+  const { t } = useTranslation();
   const playlists = usePlaylistsStore((s) => s.playlists);
   const createPlaylist = usePlaylistsStore((s) => s.createPlaylist);
   const addTrack = usePlaylistsStore((s) => s.addTrack);
@@ -59,7 +63,7 @@ function TrackPlaylistMenu({ track }: { track: Track }) {
   };
 
   const handleCreateAndAdd = async () => {
-    const name = prompt("Название плейлиста:");
+    const name = prompt(t("playlist.createPrompt"));
     if (!name?.trim()) return;
     await createPlaylist(name.trim());
     const { playlists: updated } = usePlaylistsStore.getState();
@@ -78,13 +82,14 @@ function TrackPlaylistMenu({ track }: { track: Track }) {
       {playlists.length > 0 && <DropdownMenuSeparator />}
       <DropdownMenuItem onClick={handleCreateAndAdd}>
         <Plus className="h-4 w-4 mr-2 text-green-500" />
-        <span className="text-green-500">Создать новый</span>
+        <span className="text-green-500">{t("playlist.createNew")}</span>
       </DropdownMenuItem>
     </>
   );
 }
 
 export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, isLoading }: TrackListProps) {
+  const { t } = useTranslation();
   const currentTrackId = usePlayerStore((s) => s.currentTrack?.id);
   const storeIsPlaying = usePlayerStore((s) => s.isPlaying);
   const queue = usePlayerStore((s) => s.queue);
@@ -123,7 +128,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
           <ArrowUpDown className="h-3 w-3 mr-1" />
           YouTube
         </Button>
-        {sortOptions.map(({ field, label, icon: Icon }) => (
+        {sortOptions.map(({ field, labelKey, icon: Icon }) => (
           <Button
             key={field}
             variant={sortField === field ? "secondary" : "ghost"}
@@ -132,7 +137,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
             onClick={() => handleSortClick(field)}
           >
             <Icon className="h-3 w-3 mr-1" />
-            {label}
+            {t(labelKey)}
             {sortField === field && (
               <span className="ml-0.5">{sortAsc ? "↑" : "↓"}</span>
             )}
@@ -213,7 +218,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
               size="icon"
               className="hidden md:inline-flex opacity-0 group-hover:opacity-100 shrink-0"
               onClick={(e) => { e.stopPropagation(); isInQueue ? removeFromQueue(queueIndex) : onAddToQueue(track); }}
-              title={isInQueue ? "Убрать из очереди" : "В очередь"}
+              title={isInQueue ? t("queue.removeFromQueue") : t("queue.addToQueue")}
             >
               {isInQueue ? (
                 <ListMinus className="h-4 w-4 text-green-500" />
@@ -228,7 +233,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                   size="icon"
                   className="hidden md:inline-flex opacity-0 group-hover:opacity-100 shrink-0"
                   onClick={(e) => e.stopPropagation()}
-                  title="В плейлист"
+                  title={t("playlist.addToPlaylist")}
                 >
                   <FolderPlus className="h-4 w-4" />
                 </Button>
@@ -256,7 +261,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
                   ) : (
                     <ListPlus className="h-4 w-4 mr-2" />
                   )}
-                  {isInQueue ? "Убрать из очереди" : "В очередь"}
+                  {isInQueue ? t("queue.removeFromQueue") : t("queue.addToQueue")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <TrackPlaylistMenu track={track} />
@@ -289,7 +294,7 @@ export function TrackList({ tracks, onPlay, onAddToQueue, onLoadMore, hasMore, i
             {isLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : null}
-            Ещё результаты
+            {t("search.loadMore")}
           </Button>
         </div>
       )}
