@@ -2,6 +2,12 @@
 
 Персональный proxy веб-плеер для YouTube. Нет необходимости в vpn.
 
+## Скриншоты
+
+| Плеер | Переключатель языка | Логин |
+|:---:|:---:|:---:|
+| ![Плеер](docs/screenshots/main-player-ru.png) | ![Переключатель языка](docs/screenshots/main-lang-switcher.png) | ![Логин](docs/screenshots/login-ru.png) |
+
 ## Возможности
 
 - Поиск треков через YouTube Data API
@@ -11,6 +17,7 @@
 - Авторизация по email/паролю (без регистрации, только whitelist)
 - Синхронизация состояния плеера между устройствами (очередь, позиция, плейлисты)
 - PWA — установка на телефон, фоновое воспроизведение через Media Session API
+- Мультиязычность — русский, казахский, английский (автоопределение + ручной выбор)
 - Адаптивный интерфейс: полноценный десктоп и мобильная версия с мини-плеером
 
 ## Стек
@@ -29,6 +36,7 @@ musicplay/
 │   └── src/
 │       ├── components/   # UI-компоненты (Player, SearchBar, Queue, ...)
 │       ├── contexts/     # AuthContext
+│       ├── i18n/         # Мультиязычность (RU, KK, EN)
 │       ├── hooks/        # useAudio, useMediaSession, usePlayerSync
 │       ├── lib/          # API-клиенты (api, auth-api, player-state-api, playlist-api)
 │       └── stores/       # Zustand store (player)

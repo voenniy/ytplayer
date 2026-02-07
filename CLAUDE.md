@@ -31,6 +31,17 @@ MusicPlay — персональный веб-плеер для YouTube. Не д
 
 Каждый агент имеет набор скилов из skills.sh (`.agents/skills/`) и самостоятельно решает, когда их использовать.
 
+## i18n (мультиязычность)
+
+- Легковесная своя реализация: React Context + типизированные JSON-файлы
+- Языки: русский (по умолчанию), казахский, английский
+- Файлы: `client/src/i18n/` — `types.ts`, `index.ts`, `I18nProvider.tsx`, `locales/{ru,en,kk}.ts`
+- Хук: `useTranslation()` возвращает `{ t, locale, setLocale }`
+- Плюрализация: суффиксы `_one/_few/_many`, функция `pluralize()`
+- Интерполяция: `{{key}}` в строках
+- Определение языка: localStorage → navigator.language → "ru"
+- UI: компонент `LanguageSwitcher.tsx` (флаг + DropdownMenu)
+
 ## Скилы (skills.sh)
 
 Установлены в `.agents/skills/`. Ключевые по ролям:
