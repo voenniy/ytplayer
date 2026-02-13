@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Play, Pause, SkipForward, Volume2, Repeat1, ListPlus, ListMinus, FolderPlus, Plus } from "lucide-react";
+import { Play, Pause, SkipForward, Volume2, Repeat1, ListPlus, ListMinus, FolderPlus, Plus, ExternalLink } from "lucide-react";
 import { handleImgError } from "@/lib/img-fallback";
 import { useTranslation } from "@/i18n";
 
@@ -132,6 +132,16 @@ export function Player({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <a
+            href={`https://www.youtube.com/watch?v=${currentTrack.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="YouTube"
+          >
+            <Button variant="ghost" size="icon">
+              <ExternalLink className="h-5 w-5" />
+            </Button>
+          </a>
           <div className="flex items-center gap-1 ml-2">
             <Volume2 className="h-4 w-4 text-muted-foreground" />
             <Slider

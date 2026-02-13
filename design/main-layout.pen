@@ -1,5 +1,5 @@
 {
-  "version": "2.6",
+  "version": "2.7",
   "children": [
     {
       "type": "frame",
@@ -5296,7 +5296,8 @@
               "fill": "#6B6B70",
               "content": "Войдите в свой аккаунт",
               "fontFamily": "DM Sans",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -5350,7 +5351,8 @@
                           "fill": "#4A4A50",
                           "content": "voenniy@gmail.com",
                           "fontFamily": "DM Sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -5400,7 +5402,8 @@
                           "fill": "#4A4A50",
                           "content": "••••••••",
                           "fontFamily": "DM Sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -5554,7 +5557,8 @@
               "fill": "#6B6B70",
               "content": "Войдите в свой аккаунт",
               "fontFamily": "DM Sans",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -5608,7 +5612,8 @@
                           "fill": "#4A4A50",
                           "content": "voenniy@gmail.com",
                           "fontFamily": "DM Sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -5658,7 +5663,8 @@
                           "fill": "#4A4A50",
                           "content": "••••••••",
                           "fontFamily": "DM Sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -5776,7 +5782,8 @@
               "fill": "#6B6B70",
               "content": "Войдите в свой аккаунт",
               "fontFamily": "DM Sans",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -5830,7 +5837,8 @@
                           "fill": "#4A4A50",
                           "content": "voenniy@gmail.com",
                           "fontFamily": "DM Sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -5880,7 +5888,8 @@
                           "fill": "#4A4A50",
                           "content": "••••••••",
                           "fontFamily": "DM Sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
