@@ -1,10 +1,20 @@
 services:
+  bgutil-provider:
+    image: brainicism/bgutil-ytdlp-pot-provider:latest
+    restart: unless-stopped
+    init: true
+    networks:
+      - web
+
   app:
     image: ghcr.io/voenniy/ytplayer:latest
     restart: unless-stopped
+    depends_on:
+      - bgutil-provider
     env_file: .env
     environment:
       - LOG_DIR=/app/logs
+      - BGUTIL_POT_BASE_URL=http://bgutil-provider:4416
     volumes:
       - db-data:/app/data
       - ./logs:/app/logs

@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { existsSync } from "fs";
 import { logger } from "../lib/logger";
 
 const log = logger.child({ service: "yt-dlp" });
@@ -55,14 +56,36 @@ function pickBestAudioFormat(formats: any[]): { url: string; contentLength: numb
   };
 }
 
+function buildYtdlpArgs(videoUrl: string): string[] {
+  const args = [
+    "--dump-json", "--no-warnings", "--no-playlist",
+    "-f", "bestaudio",
+    "--geo-bypass",
+    "--force-ipv4",
+  ];
+
+  // bgutil PO-token provider (обход YouTube JS challenge)
+  const bgutilUrl = process.env.BGUTIL_POT_BASE_URL;
+  if (bgutilUrl) {
+    args.push("--extractor-args", `youtubepot-bgutilhttp:base_url=${bgutilUrl}`);
+  }
+
+  // Cookies для обхода ограничений (если файл есть)
+  const cookiePath = "/app/cookies.txt";
+  if (existsSync(cookiePath)) {
+    args.push("--cookies", cookiePath);
+  }
+
+  args.push(videoUrl);
+  return args;
+}
+
 function fetchYtdlpJson(videoId: string): Promise<any> {
   return new Promise((resolve, reject) => {
     const url = buildStreamUrl(videoId);
-    const proc = spawn("yt-dlp", [
-      "--dump-json", "--no-warnings", "--no-playlist",
-      "-f", "bestaudio",
-      url,
-    ]);
+    const args = buildYtdlpArgs(url);
+    log.info({ args: args.filter(a => !a.startsWith("http")) }, "yt-dlp args");
+    const proc = spawn("yt-dlp", args);
 
     let stdout = "";
     proc.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
