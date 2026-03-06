@@ -6,11 +6,22 @@ services:
     networks:
       - web
 
+  cookie-manager:
+    image: ghcr.io/voenniy/ytplayer-cookie-manager:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9222:9222"
+    volumes:
+      - cookie-data:/data
+    networks:
+      - web
+
   app:
     image: ghcr.io/voenniy/ytplayer:latest
     restart: unless-stopped
     depends_on:
       - bgutil-provider
+      - cookie-manager
     env_file: .env
     environment:
       - LOG_DIR=/app/logs
@@ -18,6 +29,7 @@ services:
     volumes:
       - db-data:/app/data
       - ./logs:/app/logs
+      - cookie-data:/app/cookie-data:ro
     networks:
       - web
 
@@ -39,6 +51,7 @@ volumes:
   db-data:
   caddy-data:
   caddy-config:
+  cookie-data:
 
 networks:
   web:

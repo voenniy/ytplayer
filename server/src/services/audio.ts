@@ -70,10 +70,13 @@ function buildYtdlpArgs(videoUrl: string): string[] {
     args.push("--extractor-args", `youtubepot-bgutilhttp:base_url=${bgutilUrl}`);
   }
 
-  // Cookies для обхода ограничений (если файл есть)
-  const cookiePath = "/app/cookies.txt";
-  if (existsSync(cookiePath)) {
-    args.push("--cookies", cookiePath);
+  // Cookies от cookie-manager (shared volume)
+  const cookiePaths = ["/app/cookie-data/cookies.txt", "/app/cookies.txt"];
+  for (const cookiePath of cookiePaths) {
+    if (existsSync(cookiePath)) {
+      args.push("--cookies", cookiePath);
+      break;
+    }
   }
 
   args.push(videoUrl);

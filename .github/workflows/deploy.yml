@@ -24,7 +24,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push app
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -34,8 +34,19 @@ jobs:
             ghcr.io/voenniy/ytplayer:${{ github.sha }}
           build-args: |
             COMMIT_HASH=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=app
+          cache-to: type=gha,mode=max,scope=app
+
+      - name: Build and push cookie-manager
+        uses: docker/build-push-action@v6
+        with:
+          context: ./cookie-manager
+          push: true
+          tags: |
+            ghcr.io/voenniy/ytplayer-cookie-manager:latest
+            ghcr.io/voenniy/ytplayer-cookie-manager:${{ github.sha }}
+          cache-from: type=gha,scope=cookie-manager
+          cache-to: type=gha,mode=max,scope=cookie-manager
 
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.7
