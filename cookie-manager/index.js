@@ -95,20 +95,23 @@ async function main() {
     console.log(`[cookie-manager] Found Chromium at: ${chromePath}`);
   }
 
-  // Launch persistent context with explicit executablePath
+  // Launch persistent context — hide automation markers so Google allows login
   const launchOpts = {
-    headless: true,
+    headless: false,
     args: [
       `--remote-debugging-port=${CDP_PORT}`,
       "--remote-debugging-address=0.0.0.0",
       "--no-sandbox",
       "--disable-gpu",
       "--disable-dev-shm-usage",
+      "--disable-blink-features=AutomationControlled",
+      "--headless=new",
     ],
+    ignoreDefaultArgs: ["--enable-automation"],
     viewport: { width: 1280, height: 720 },
     locale: "en-US",
     userAgent:
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
   };
   if (chromePath) launchOpts.executablePath = chromePath;
 
