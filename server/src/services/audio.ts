@@ -56,7 +56,15 @@ function pickBestAudioFormat(formats: any[]): { url: string; contentLength: numb
   };
 }
 
-function buildYtdlpArgs(videoUrl: string): string[] {
+function findCookiesPath(): string | null {
+  const paths = ["/app/cookie-data/cookies.txt", "/app/cookies.txt"];
+  for (const p of paths) {
+    if (existsSync(p)) return p;
+  }
+  return null;
+}
+
+function buildYtdlpArgs(videoUrl: string, useCookies: boolean): string[] {
   const args = [
     "--dump-json", "--no-warnings", "--no-playlist",
     "-f", "bestaudio",
@@ -70,12 +78,11 @@ function buildYtdlpArgs(videoUrl: string): string[] {
     args.push("--extractor-args", `youtubepot-bgutilhttp:base_url=${bgutilUrl}`);
   }
 
-  // Cookies от cookie-manager (shared volume)
-  const cookiePaths = ["/app/cookie-data/cookies.txt", "/app/cookies.txt"];
-  for (const cookiePath of cookiePaths) {
-    if (existsSync(cookiePath)) {
+  // Cookies только по запросу (fallback при "Sign in" ошибке)
+  if (useCookies) {
+    const cookiePath = findCookiesPath();
+    if (cookiePath) {
       args.push("--cookies", cookiePath);
-      break;
     }
   }
 
@@ -83,25 +90,51 @@ function buildYtdlpArgs(videoUrl: string): string[] {
   return args;
 }
 
-function fetchYtdlpJson(videoId: string): Promise<any> {
+function spawnYtdlp(videoId: string, useCookies: boolean): Promise<any> {
   return new Promise((resolve, reject) => {
     const url = buildStreamUrl(videoId);
-    const args = buildYtdlpArgs(url);
-    log.info({ args: args.filter(a => !a.startsWith("http")) }, "yt-dlp args");
+    const args = buildYtdlpArgs(url, useCookies);
+    log.info({ args: args.filter(a => !a.startsWith("http")), useCookies }, "yt-dlp args");
     const proc = spawn("yt-dlp", args);
 
     let stdout = "";
+    let stderr = "";
     proc.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
     proc.stderr.on("data", (data: Buffer) => {
-      log.warn({ stderr: data.toString().trim() }, "yt-dlp stderr");
+      const msg = data.toString().trim();
+      stderr += msg;
+      log.warn({ stderr: msg }, "yt-dlp stderr");
     });
     proc.on("close", (code) => {
-      if (code !== 0) return reject(new Error(`yt-dlp exited with code ${code}`));
+      if (code !== 0) {
+        const err = new Error(`yt-dlp exited with code ${code}`);
+        (err as any).stderr = stderr;
+        return reject(err);
+      }
       try { resolve(JSON.parse(stdout)); }
       catch { reject(new Error("Failed to parse yt-dlp JSON")); }
     });
     proc.on("error", reject);
   });
+}
+
+const SIGN_IN_ERROR = "Sign in to confirm";
+
+async function fetchYtdlpJson(videoId: string): Promise<any> {
+  // 1. Try without cookies first (avoids geo-mismatch issues)
+  try {
+    return await spawnYtdlp(videoId, false);
+  } catch (err: any) {
+    const needsAuth = err.stderr && err.stderr.includes(SIGN_IN_ERROR);
+    if (!needsAuth) throw err;
+
+    // 2. Fallback: retry with cookies for "Sign in" errors
+    const cookiePath = findCookiesPath();
+    if (!cookiePath) throw err;
+
+    log.info({ videoId }, "Retrying with cookies after Sign-in error");
+    return await spawnYtdlp(videoId, true);
+  }
 }
 
 export async function resolveAudioUrl(videoId: string): Promise<AudioInfo> {
