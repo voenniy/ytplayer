@@ -1,5 +1,7 @@
 import { spawn } from "child_process";
-import { existsSync } from "fs";
+import { existsSync, copyFileSync, mkdtempSync } from "fs";
+import { join } from "path";
+import { tmpdir } from "os";
 import { logger } from "../lib/logger";
 
 const log = logger.child({ service: "yt-dlp" });
@@ -64,6 +66,24 @@ function findCookiesPath(): string | null {
   return null;
 }
 
+/**
+ * Copy cookies to a writable temp file so yt-dlp can save back without crashing
+ * on read-only volumes. Returns temp path or null.
+ */
+function copyCoookiesToTmp(): string | null {
+  const src = findCookiesPath();
+  if (!src) return null;
+  try {
+    const dir = mkdtempSync(join(tmpdir(), "ytdlp-cookies-"));
+    const dst = join(dir, "cookies.txt");
+    copyFileSync(src, dst);
+    return dst;
+  } catch (err) {
+    log.warn({ err }, "Failed to copy cookies to temp file");
+    return null;
+  }
+}
+
 function buildYtdlpArgs(videoUrl: string, useCookies: boolean): string[] {
   const args = [
     "--dump-json", "--no-warnings", "--no-playlist",
@@ -72,17 +92,18 @@ function buildYtdlpArgs(videoUrl: string, useCookies: boolean): string[] {
     "--force-ipv4",
   ];
 
-  // bgutil PO-token provider (обход YouTube JS challenge)
-  const bgutilUrl = process.env.BGUTIL_POT_BASE_URL;
-  if (bgutilUrl) {
-    args.push("--extractor-args", `youtubepot-bgutilhttp:base_url=${bgutilUrl}`);
-  }
-
-  // Cookies только по запросу (fallback при "Sign in" ошибке)
   if (useCookies) {
-    const cookiePath = findCookiesPath();
+    // Cookies fallback: don't use bgutil (cookies + bgutil conflict → "page needs to be reloaded")
+    // Copy to temp file so yt-dlp can write back without crashing on read-only volume
+    const cookiePath = copyCoookiesToTmp();
     if (cookiePath) {
       args.push("--cookies", cookiePath);
+    }
+  } else {
+    // bgutil PO-token provider (обход YouTube JS challenge)
+    const bgutilUrl = process.env.BGUTIL_POT_BASE_URL;
+    if (bgutilUrl) {
+      args.push("--extractor-args", `youtubepot-bgutilhttp:base_url=${bgutilUrl}`);
     }
   }
 
