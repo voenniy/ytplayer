@@ -5,6 +5,8 @@ dist/
 *.db-shm
 *.db-wal
 *.db-journal
+cookies.txt
+cookies.txt.bak
 
 # AI tool skills/config (generated)
 .agent/
